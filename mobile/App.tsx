@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StatusBar, View } from 'react-native';
+import { StatusBar, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Navigation from './src/app/Navigation';
@@ -9,6 +9,10 @@ import NetworkGuard from './src/components/NetworkGuard';
 import { useAuthStore } from './src/stores/auth';
 import { usePlayerStore } from './src/stores/player';
 import { setupPlayer } from './src/services/player';
+
+const appStyles = StyleSheet.create({
+  root: { flex: 1 },
+});
 
 function App() {
   useEffect(() => {
@@ -20,7 +24,7 @@ function App() {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={appStyles.root}>
       <ErrorBoundary>
         <SafeAreaProvider>
           <StatusBar barStyle="light-content" backgroundColor="#121212" />

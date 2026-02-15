@@ -23,7 +23,6 @@ import {
   shadows,
   iconSizes,
 } from '../theme';
-import type { TrackMeta } from '../types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const ARTWORK_SIZE = SCREEN_WIDTH - spacing.lg * 4;

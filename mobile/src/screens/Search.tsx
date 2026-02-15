@@ -27,7 +27,7 @@ export default function SearchScreen() {
   const [showPlaylistSheet, setShowPlaylistSheet] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { playTrack, currentTrack, addToQueue } = usePlayerStore();
+  const { playTrack, currentTrack } = usePlayerStore();
 
   const performSearch = useCallback(async (q: string) => {
     if (q.trim().length < 2) {

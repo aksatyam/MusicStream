@@ -98,3 +98,6 @@ jest.mock('@react-navigation/native', () => ({
 
 // Mock @react-native-community/slider
 jest.mock('@react-native-community/slider', () => 'Slider');
+
+// Mock react-native-vector-icons
+jest.mock('react-native-vector-icons/Ionicons', () => 'Ionicons');

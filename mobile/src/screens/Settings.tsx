@@ -207,7 +207,7 @@ export default function SettingsScreen() {
               {extractorStatus}
             </Text>
           </View>
-          <View style={[styles.row, { borderBottomWidth: 0 }]}>
+          <View style={[styles.row, styles.rowLast]}>
             <View style={styles.rowLeft}>
               <Ionicons
                 name="information-circle-outline"
@@ -230,7 +230,7 @@ export default function SettingsScreen() {
           <Text style={styles.logoutText}>Sign Out</Text>
         </TouchableOpacity>
 
-        <View style={{ height: 80 }} />
+        <View style={styles.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -337,5 +337,11 @@ const styles = StyleSheet.create({
   logoutText: {
     ...typography.button,
     color: colors.error,
+  },
+  rowLast: {
+    borderBottomWidth: 0,
+  },
+  bottomSpacer: {
+    height: 80,
   },
 });

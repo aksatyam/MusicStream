@@ -178,7 +178,7 @@ export default function HomeScreen() {
           </>
         )}
 
-        <View style={{ height: 80 }} />
+        <View style={styles.bottomSpacer} />
       </ScrollView>
 
       <AddToPlaylistSheet
@@ -243,5 +243,8 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.lg,
     borderRadius: 8,
     textAlign: 'center',
+  },
+  bottomSpacer: {
+    height: 80,
   },
 });

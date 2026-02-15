@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { usePlayerStore } from '../stores/player';
 import TrackCard from './TrackCard';
-import { colors, spacing, typography, borderRadius } from '../theme';
+import { colors, spacing, typography } from '../theme';
 import type { TrackMeta } from '../types';
 
 interface QueueViewProps {
@@ -19,7 +19,7 @@ export default function QueueView({ onTrackPress }: QueueViewProps) {
   const { queue, currentTrack, clearQueue } = usePlayerStore();
 
   const renderItem = useCallback(
-    ({ item, index }: { item: TrackMeta; index: number }) => (
+    ({ item }: { item: TrackMeta }) => (
       <TrackCard
         track={item}
         onPress={onTrackPress}

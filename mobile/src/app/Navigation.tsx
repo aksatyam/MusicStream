@@ -106,7 +106,7 @@ function MainNavigator() {
   const currentTrack = usePlayerStore(s => s.currentTrack);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.root}>
       <MainTab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
@@ -176,6 +176,15 @@ function MainNavigator() {
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+  },
   miniPlayerContainer: {
     position: 'absolute',
     bottom: 85,
@@ -189,14 +198,7 @@ export default function Navigation() {
 
   if (isLoading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: colors.background,
-        }}
-      >
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );

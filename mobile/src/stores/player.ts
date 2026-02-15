@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Platform } from 'react-native';
-import TrackPlayer, { State, Track } from 'react-native-track-player';
+import TrackPlayer, { State } from 'react-native-track-player';
 import { api } from '../services/api';
 
 interface TrackMeta {
