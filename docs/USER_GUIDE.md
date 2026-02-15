@@ -31,6 +31,7 @@ Install the following before proceeding:
 | **Node.js** | 22+ | `node -v` |
 | **npm** | 10+ | `npm -v` |
 | **Docker Desktop** | Latest | `docker --version` |
+| **yt-dlp** | Latest | `yt-dlp --version` |
 | **Xcode** | 15+ (macOS, for iOS) | `xcode-select -p` |
 | **CocoaPods** | Latest | `pod --version` |
 | **Android Studio** | Latest (for Android) | — |
@@ -50,6 +51,9 @@ sudo gem install cocoapods
 
 # Install Node.js 22 via Homebrew
 brew install node@22
+
+# Install yt-dlp (local music extractor fallback)
+brew install yt-dlp
 ```
 
 ---
