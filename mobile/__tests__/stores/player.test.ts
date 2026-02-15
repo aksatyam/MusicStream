@@ -6,8 +6,16 @@ jest.mock('../../src/services/api', () => ({
     get: jest.fn().mockResolvedValue({
       data: {
         audioStreams: [
-          { url: 'http://audio.test/stream.opus', mimeType: 'audio/webm; codecs="opus"', bitrate: 128000 },
-          { url: 'http://audio.test/stream.m4a', mimeType: 'audio/mp4', bitrate: 256000 },
+          {
+            url: 'http://audio.test/stream.opus',
+            mimeType: 'audio/webm; codecs="opus"',
+            bitrate: 128000,
+          },
+          {
+            url: 'http://audio.test/stream.m4a',
+            mimeType: 'audio/mp4',
+            bitrate: 256000,
+          },
         ],
       },
     }),
@@ -103,7 +111,9 @@ describe('Player Store', () => {
   });
 
   it('should toggle play/pause', async () => {
-    (TrackPlayer.getPlaybackState as jest.Mock).mockResolvedValueOnce({ state: 'playing' });
+    (TrackPlayer.getPlaybackState as jest.Mock).mockResolvedValueOnce({
+      state: 'playing',
+    });
 
     await usePlayerStore.getState().togglePlayPause();
     expect(TrackPlayer.pause).toHaveBeenCalled();

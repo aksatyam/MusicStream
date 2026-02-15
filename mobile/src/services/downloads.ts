@@ -42,7 +42,7 @@ export async function getDownloadedTracks(): Promise<DownloadedTrack[]> {
 
 export async function isDownloaded(videoId: string): Promise<boolean> {
   const manifest = await readManifest();
-  const entry = manifest.find((t) => t.videoId === videoId);
+  const entry = manifest.find(t => t.videoId === videoId);
   if (!entry) return false;
   return RNFS.exists(entry.filePath);
 }
@@ -68,7 +68,7 @@ export async function downloadTrack(
     const result = await RNFS.downloadFile({
       fromUrl: selected.url,
       toFile: filePath,
-      progress: (res) => {
+      progress: res => {
         if (onProgress && res.contentLength > 0) {
           onProgress(res.bytesWritten / res.contentLength);
         }
@@ -90,7 +90,7 @@ export async function downloadTrack(
 
     // Update manifest
     const manifest = await readManifest();
-    const filtered = manifest.filter((t) => t.videoId !== track.videoId);
+    const filtered = manifest.filter(t => t.videoId !== track.videoId);
     await writeManifest([downloaded, ...filtered]);
 
     return downloaded;
@@ -102,7 +102,7 @@ export async function downloadTrack(
 
 export async function deleteDownload(videoId: string): Promise<void> {
   const manifest = await readManifest();
-  const entry = manifest.find((t) => t.videoId === videoId);
+  const entry = manifest.find(t => t.videoId === videoId);
 
   if (entry) {
     try {
@@ -112,7 +112,7 @@ export async function deleteDownload(videoId: string): Promise<void> {
     }
   }
 
-  await writeManifest(manifest.filter((t) => t.videoId !== videoId));
+  await writeManifest(manifest.filter(t => t.videoId !== videoId));
 }
 
 export async function deleteAllDownloads(): Promise<void> {

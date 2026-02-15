@@ -35,7 +35,10 @@ describe('QueueView', () => {
 
   it('should render tracks when queue has items', () => {
     usePlayerStore.setState({
-      queue: [mockTrack, { ...mockTrack, videoId: 'test-456', title: 'Another Song' }],
+      queue: [
+        mockTrack,
+        { ...mockTrack, videoId: 'test-456', title: 'Another Song' },
+      ],
     });
 
     const { getByText } = render(<QueueView onTrackPress={jest.fn()} />);

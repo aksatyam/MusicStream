@@ -1,7 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { extractorOrchestrator } from '../services/extractor.js';
 
-export const trackRoutes: FastifyPluginAsync = async (app) => {
+export const trackRoutes: FastifyPluginAsync = async app => {
   app.get('/tracks/:videoId', async (request, reply) => {
     const { videoId } = request.params as { videoId: string };
 

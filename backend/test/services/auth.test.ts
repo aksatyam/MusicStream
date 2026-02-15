@@ -20,7 +20,14 @@ jest.mock('../../src/config/env', () => ({
   },
 }));
 
-import { register, login, refresh, verifyToken, getUserById, AuthError } from '../../src/services/auth';
+import {
+  register,
+  login,
+  refresh,
+  verifyToken,
+  getUserById,
+  AuthError,
+} from '../../src/services/auth';
 import { getOne, query } from '../../src/services/db';
 import argon2 from 'argon2';
 
@@ -46,7 +53,13 @@ describe('Auth Service', () => {
         created_at: new Date(),
       });
       // Store refresh token
-      mockedQuery.mockResolvedValueOnce({ rows: [], rowCount: 1, command: 'INSERT', oid: 0, fields: [] });
+      mockedQuery.mockResolvedValueOnce({
+        rows: [],
+        rowCount: 1,
+        command: 'INSERT',
+        oid: 0,
+        fields: [],
+      });
 
       const result = await register('test@example.com', 'password123', 'Test User');
 
@@ -76,7 +89,13 @@ describe('Auth Service', () => {
       });
       mockedArgon2Verify.mockResolvedValueOnce(true);
       // Store refresh token
-      mockedQuery.mockResolvedValueOnce({ rows: [], rowCount: 1, command: 'INSERT', oid: 0, fields: [] });
+      mockedQuery.mockResolvedValueOnce({
+        rows: [],
+        rowCount: 1,
+        command: 'INSERT',
+        oid: 0,
+        fields: [],
+      });
 
       const result = await login('test@example.com', 'password123');
 
@@ -110,7 +129,10 @@ describe('Auth Service', () => {
 
   describe('verifyToken', () => {
     it('should verify a valid JWT token', () => {
-      const token = jwt.sign({ sub: 'user-123', email: 'test@example.com', type: 'access' }, 'test-secret-key-for-jwt-signing');
+      const token = jwt.sign(
+        { sub: 'user-123', email: 'test@example.com', type: 'access' },
+        'test-secret-key-for-jwt-signing',
+      );
       const payload = verifyToken(token);
       expect(payload.sub).toBe('user-123');
       expect(payload.email).toBe('test@example.com');

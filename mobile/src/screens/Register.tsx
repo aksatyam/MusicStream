@@ -15,7 +15,10 @@ import { register } from '../services/auth';
 import { colors, spacing, typography, borderRadius } from '../theme';
 import type { AuthStackParamList } from '../app/Navigation';
 
-type RegisterNavProp = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
+type RegisterNavProp = NativeStackNavigationProp<
+  AuthStackParamList,
+  'Register'
+>;
 
 export default function RegisterScreen() {
   const navigation = useNavigation<RegisterNavProp>();
@@ -37,7 +40,10 @@ export default function RegisterScreen() {
     try {
       await register({ email, password, displayName });
     } catch (err: any) {
-      Alert.alert('Registration Failed', err.response?.data?.error || 'Something went wrong');
+      Alert.alert(
+        'Registration Failed',
+        err.response?.data?.error || 'Something went wrong',
+      );
     } finally {
       setLoading(false);
     }
@@ -46,7 +52,8 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <View style={styles.content}>
         <Text style={styles.logo}>MusicStream</Text>
         <Text style={styles.subtitle}>Create your account</Text>
@@ -84,13 +91,17 @@ export default function RegisterScreen() {
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleRegister}
-          disabled={loading}>
-          <Text style={styles.buttonText}>{loading ? 'Creating account...' : 'Create Account'}</Text>
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? 'Creating account...' : 'Create Account'}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.linkText}>
-            Already have an account? <Text style={styles.linkBold}>Sign In</Text>
+            Already have an account?{' '}
+            <Text style={styles.linkBold}>Sign In</Text>
           </Text>
         </TouchableOpacity>
       </View>

@@ -14,13 +14,17 @@ interface LoginParams {
 
 export async function register(params: RegisterParams) {
   const { data } = await api.post('/auth/register', params);
-  useAuthStore.getState().setAuth(data.user, data.accessToken, data.refreshToken);
+  useAuthStore
+    .getState()
+    .setAuth(data.user, data.accessToken, data.refreshToken);
   return data;
 }
 
 export async function login(params: LoginParams) {
   const { data } = await api.post('/auth/login', params);
-  useAuthStore.getState().setAuth(data.user, data.accessToken, data.refreshToken);
+  useAuthStore
+    .getState()
+    .setAuth(data.user, data.accessToken, data.refreshToken);
   return data;
 }
 

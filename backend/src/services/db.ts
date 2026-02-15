@@ -8,7 +8,7 @@ const pool = new pg.Pool({
   connectionTimeoutMillis: 5_000,
 });
 
-pool.on('error', (err) => {
+pool.on('error', err => {
   console.error('Unexpected PG pool error:', err.message);
 });
 

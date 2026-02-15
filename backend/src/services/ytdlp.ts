@@ -30,10 +30,7 @@ interface YtDlpStreamResult {
  * Search YouTube via yt-dlp `ytsearch` prefix.
  * Returns up to `limit` normalized results.
  */
-export async function ytdlpSearch(
-  query: string,
-  limit: number = 20,
-): Promise<YtDlpSearchResult[]> {
+export async function ytdlpSearch(query: string, limit: number = 20): Promise<YtDlpSearchResult[]> {
   const { stdout } = await execFileAsync(
     'yt-dlp',
     [
@@ -60,8 +57,7 @@ export async function ytdlpSearch(
         artist: item.channel || item.uploader || 'Unknown Artist',
         duration: Math.round(item.duration || 0),
         thumbnail:
-          item.thumbnails?.slice(-1)[0]?.url ||
-          `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
+          item.thumbnails?.slice(-1)[0]?.url || `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
       });
     } catch {
       // skip malformed lines
@@ -79,12 +75,7 @@ export async function ytdlpGetStreams(videoId: string): Promise<YtDlpStreamResul
 
   const { stdout } = await execFileAsync(
     'yt-dlp',
-    [
-      url,
-      '--dump-json',
-      '--no-warnings',
-      '--skip-download',
-    ],
+    [url, '--dump-json', '--no-warnings', '--skip-download'],
     { maxBuffer: 10 * 1024 * 1024, timeout: 30_000 },
   );
 
@@ -109,8 +100,7 @@ export async function ytdlpGetStreams(videoId: string): Promise<YtDlpStreamResul
     artist: data.channel || data.uploader || 'Unknown Artist',
     duration: Math.round(data.duration || 0),
     thumbnail:
-      data.thumbnails?.slice(-1)[0]?.url ||
-      `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+      data.thumbnails?.slice(-1)[0]?.url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
     audioStreams: audioFormats.map((f: any) => ({
       url: f.url,
       mimeType: f.acodec?.includes('mp4a')
@@ -156,8 +146,7 @@ export async function ytdlpGetTrending(limit: number = 20): Promise<YtDlpSearchR
         artist: item.channel || item.uploader || 'Unknown Artist',
         duration: Math.round(item.duration || 0),
         thumbnail:
-          item.thumbnails?.slice(-1)[0]?.url ||
-          `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
+          item.thumbnails?.slice(-1)[0]?.url || `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
       });
     } catch {
       // skip

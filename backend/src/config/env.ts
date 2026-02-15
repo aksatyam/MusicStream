@@ -3,7 +3,9 @@ import { z } from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'staging', 'production']).default('development'),
   PORT: z.coerce.number().default(3000),
-  DATABASE_URL: z.string().default('postgresql://musicstream:localdev123@localhost:5432/musicstream'),
+  DATABASE_URL: z
+    .string()
+    .default('postgresql://musicstream:localdev123@localhost:5432/musicstream'),
   REDIS_URL: z.string().default('redis://localhost:6379'),
   INVIDIOUS_URL: z.string().default('http://localhost:3001'),
   PIPED_URL: z.string().default('http://localhost:3002'),

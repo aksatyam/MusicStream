@@ -20,7 +20,10 @@ interface PlaylistDetailProps {
   navigation: any;
 }
 
-export default function PlaylistDetailScreen({ route, navigation }: PlaylistDetailProps) {
+export default function PlaylistDetailScreen({
+  route,
+  navigation,
+}: PlaylistDetailProps) {
   const { playlistId, playlistName } = route.params;
   const { playTrack, currentTrack } = usePlayerStore();
   const { fetchPlaylistTracks, removeTrackFromPlaylist } = useLibraryStore();
@@ -47,17 +50,21 @@ export default function PlaylistDetailScreen({ route, navigation }: PlaylistDeta
 
   const handleTrackLongPress = useCallback(
     (track: any) => {
-      Alert.alert('Remove Track', `Remove "${track.title}" from this playlist?`, [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: async () => {
-            await removeTrackFromPlaylist(playlistId, track.id);
-            setTracks((prev) => prev.filter((t) => t.id !== track.id));
+      Alert.alert(
+        'Remove Track',
+        `Remove "${track.title}" from this playlist?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Remove',
+            style: 'destructive',
+            onPress: async () => {
+              await removeTrackFromPlaylist(playlistId, track.id);
+              setTracks(prev => prev.filter(t => t.id !== track.id));
+            },
           },
-        },
-      ]);
+        ],
+      );
     },
     [playlistId, removeTrackFromPlaylist],
   );
@@ -88,7 +95,10 @@ export default function PlaylistDetailScreen({ route, navigation }: PlaylistDeta
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backBtn}
+        >
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title} numberOfLines={1}>
@@ -104,7 +114,7 @@ export default function PlaylistDetailScreen({ route, navigation }: PlaylistDeta
       ) : tracks.length > 0 ? (
         <FlatList
           data={tracks}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
         />

@@ -67,7 +67,8 @@ function AuthNavigator() {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.background },
-      }}>
+      }}
+    >
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Register" component={RegisterScreen} />
     </AuthStack.Navigator>
@@ -80,9 +81,13 @@ function LibraryNavigator() {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.background },
-      }}>
+      }}
+    >
       <LibraryStack.Screen name="LibraryHome" component={LibraryScreen} />
-      <LibraryStack.Screen name="PlaylistDetail" component={PlaylistDetailScreen} />
+      <LibraryStack.Screen
+        name="PlaylistDetail"
+        component={PlaylistDetailScreen}
+      />
       <LibraryStack.Screen name="LikedSongs" component={LikedSongsScreen} />
       <LibraryStack.Screen name="Downloads" component={DownloadsScreen} />
     </LibraryStack.Navigator>
@@ -98,7 +103,7 @@ const TAB_ICONS: Record<string, { focused: string; unfocused: string }> = {
 
 function MainNavigator() {
   const [showNowPlaying, setShowNowPlaying] = useState(false);
-  const currentTrack = usePlayerStore((s) => s.currentTrack);
+  const currentTrack = usePlayerStore(s => s.currentTrack);
 
   return (
     <View style={{ flex: 1 }}>
@@ -126,11 +131,28 @@ function MainNavigator() {
             fontWeight: '600',
             marginTop: 2,
           },
-        })}>
-        <MainTab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: 'Home' }} />
-        <MainTab.Screen name="Search" component={SearchScreen} options={{ tabBarLabel: 'Search' }} />
-        <MainTab.Screen name="Library" component={LibraryNavigator} options={{ tabBarLabel: 'Library' }} />
-        <MainTab.Screen name="Settings" component={SettingsScreen} options={{ tabBarLabel: 'Settings' }} />
+        })}
+      >
+        <MainTab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ tabBarLabel: 'Home' }}
+        />
+        <MainTab.Screen
+          name="Search"
+          component={SearchScreen}
+          options={{ tabBarLabel: 'Search' }}
+        />
+        <MainTab.Screen
+          name="Library"
+          component={LibraryNavigator}
+          options={{ tabBarLabel: 'Library' }}
+        />
+        <MainTab.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{ tabBarLabel: 'Settings' }}
+        />
       </MainTab.Navigator>
 
       {/* MiniPlayer sits above tab bar */}
@@ -145,7 +167,8 @@ function MainNavigator() {
         visible={showNowPlaying}
         animationType="slide"
         presentationStyle="fullScreen"
-        onRequestClose={() => setShowNowPlaying(false)}>
+        onRequestClose={() => setShowNowPlaying(false)}
+      >
         <NowPlayingScreen onClose={() => setShowNowPlaying(false)} />
       </Modal>
     </View>
@@ -166,7 +189,14 @@ export default function Navigation() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.background,
+        }}
+      >
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );

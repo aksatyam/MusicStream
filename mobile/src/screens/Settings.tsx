@@ -12,30 +12,39 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from '../stores/auth';
 import { usePlayerStore } from '../stores/player';
 import { logout } from '../services/auth';
-import { getDownloadSize, formatBytes, deleteAllDownloads } from '../services/downloads';
+import {
+  getDownloadSize,
+  formatBytes,
+  deleteAllDownloads,
+} from '../services/downloads';
 import { api } from '../services/api';
 import { toast } from '../components/Toast';
 import { colors, spacing, typography, borderRadius, iconSizes } from '../theme';
 
 export default function SettingsScreen() {
-  const user = useAuthStore((s) => s.user);
-  const queue = usePlayerStore((s) => s.queue);
+  const user = useAuthStore(s => s.user);
+  const queue = usePlayerStore(s => s.queue);
   const [downloadSize, setDownloadSize] = useState('0 B');
   const [extractorStatus, setExtractorStatus] = useState<string>('Checking...');
-  const [extractorColor, setExtractorColor] = useState<string>(colors.textMuted);
+  const [extractorColor, setExtractorColor] = useState<string>(
+    colors.textMuted,
+  );
 
   useEffect(() => {
-    getDownloadSize().then((size) => setDownloadSize(formatBytes(size)));
+    getDownloadSize().then(size => setDownloadSize(formatBytes(size)));
 
-    api.get('/health').then(({ data }) => {
-      const services = data.services || {};
-      const allHealthy = services.database && services.redis;
-      setExtractorStatus(allHealthy ? 'All Healthy' : 'Degraded');
-      setExtractorColor(allHealthy ? colors.success : colors.warning);
-    }).catch(() => {
-      setExtractorStatus('Unreachable');
-      setExtractorColor(colors.error);
-    });
+    api
+      .get('/health')
+      .then(({ data }) => {
+        const services = data.services || {};
+        const allHealthy = services.database && services.redis;
+        setExtractorStatus(allHealthy ? 'All Healthy' : 'Degraded');
+        setExtractorColor(allHealthy ? colors.success : colors.warning);
+      })
+      .catch(() => {
+        setExtractorStatus('Unreachable');
+        setExtractorColor(colors.error);
+      });
   }, []);
 
   const handleClearDownloads = () => {
@@ -101,21 +110,36 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <View style={styles.row}>
             <View style={styles.rowLeft}>
-              <Ionicons name="musical-note-outline" size={iconSizes.sm} color={colors.textSecondary} />
+              <Ionicons
+                name="musical-note-outline"
+                size={iconSizes.sm}
+                color={colors.textSecondary}
+              />
               <Text style={styles.rowText}>Audio Quality</Text>
             </View>
             <Text style={styles.rowValue}>High (256kbps)</Text>
           </View>
           <View style={styles.row}>
             <View style={styles.rowLeft}>
-              <Ionicons name="list-outline" size={iconSizes.sm} color={colors.textSecondary} />
+              <Ionicons
+                name="list-outline"
+                size={iconSizes.sm}
+                color={colors.textSecondary}
+              />
               <Text style={styles.rowText}>Queue</Text>
             </View>
-            <TouchableOpacity onPress={handleClearQueue} style={styles.rowRight}>
+            <TouchableOpacity
+              onPress={handleClearQueue}
+              style={styles.rowRight}
+            >
               <Text style={[styles.rowValue, { color: colors.primary }]}>
                 {queue.length} tracks · Clear
               </Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+              <Ionicons
+                name="chevron-forward"
+                size={16}
+                color={colors.textMuted}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -125,19 +149,33 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <View style={styles.row}>
             <View style={styles.rowLeft}>
-              <Ionicons name="download-outline" size={iconSizes.sm} color={colors.textSecondary} />
+              <Ionicons
+                name="download-outline"
+                size={iconSizes.sm}
+                color={colors.textSecondary}
+              />
               <Text style={styles.rowText}>Downloaded Music</Text>
             </View>
             <Text style={styles.rowValue}>{downloadSize}</Text>
           </View>
           <TouchableOpacity style={styles.row} onPress={handleClearDownloads}>
             <View style={styles.rowLeft}>
-              <Ionicons name="trash-outline" size={iconSizes.sm} color={colors.textSecondary} />
+              <Ionicons
+                name="trash-outline"
+                size={iconSizes.sm}
+                color={colors.textSecondary}
+              />
               <Text style={styles.rowText}>Clear All Downloads</Text>
             </View>
             <View style={styles.rowRight}>
-              <Text style={[styles.rowValue, { color: colors.error }]}>Delete</Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+              <Text style={[styles.rowValue, { color: colors.error }]}>
+                Delete
+              </Text>
+              <Ionicons
+                name="chevron-forward"
+                size={16}
+                color={colors.textMuted}
+              />
             </View>
           </TouchableOpacity>
         </View>
@@ -147,14 +185,22 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <View style={styles.row}>
             <View style={styles.rowLeft}>
-              <Ionicons name="moon-outline" size={iconSizes.sm} color={colors.textSecondary} />
+              <Ionicons
+                name="moon-outline"
+                size={iconSizes.sm}
+                color={colors.textSecondary}
+              />
               <Text style={styles.rowText}>Theme</Text>
             </View>
             <Text style={styles.rowValue}>Dark</Text>
           </View>
           <View style={styles.row}>
             <View style={styles.rowLeft}>
-              <Ionicons name="pulse-outline" size={iconSizes.sm} color={colors.textSecondary} />
+              <Ionicons
+                name="pulse-outline"
+                size={iconSizes.sm}
+                color={colors.textSecondary}
+              />
               <Text style={styles.rowText}>Extractor Status</Text>
             </View>
             <Text style={[styles.rowValue, { color: extractorColor }]}>
@@ -163,7 +209,11 @@ export default function SettingsScreen() {
           </View>
           <View style={[styles.row, { borderBottomWidth: 0 }]}>
             <View style={styles.rowLeft}>
-              <Ionicons name="information-circle-outline" size={iconSizes.sm} color={colors.textSecondary} />
+              <Ionicons
+                name="information-circle-outline"
+                size={iconSizes.sm}
+                color={colors.textSecondary}
+              />
               <Text style={styles.rowText}>Version</Text>
             </View>
             <Text style={styles.rowValue}>0.0.1</Text>
@@ -172,7 +222,11 @@ export default function SettingsScreen() {
 
         {/* Sign Out */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={iconSizes.sm} color={colors.error} />
+          <Ionicons
+            name="log-out-outline"
+            size={iconSizes.sm}
+            color={colors.error}
+          />
           <Text style={styles.logoutText}>Sign Out</Text>
         </TouchableOpacity>
 

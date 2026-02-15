@@ -42,7 +42,10 @@ export default function NetworkGuard() {
   }, [isOffline, opacity]);
 
   return (
-    <Animated.View style={[styles.banner, { opacity }]} pointerEvents={isOffline ? 'auto' : 'none'}>
+    <Animated.View
+      style={[styles.banner, { opacity }]}
+      pointerEvents={isOffline ? 'auto' : 'none'}
+    >
       <Text style={styles.text}>No internet connection</Text>
     </Animated.View>
   );

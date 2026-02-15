@@ -1,7 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { extractorOrchestrator } from '../services/extractor.js';
 
-export const searchRoutes: FastifyPluginAsync = async (app) => {
+export const searchRoutes: FastifyPluginAsync = async app => {
   app.get('/search', async (request, reply) => {
     const { q, sort, page } = request.query as { q?: string; sort?: string; page?: string };
 

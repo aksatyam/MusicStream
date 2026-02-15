@@ -39,7 +39,7 @@ const historySchema = z.object({
   playDuration: z.number().int().nonnegative().optional().default(0),
 });
 
-export const playlistRoutes: FastifyPluginAsync = async (app) => {
+export const playlistRoutes: FastifyPluginAsync = async app => {
   // ─── Playlists ────────────────────────────────────────────
 
   // List user playlists
@@ -113,7 +113,10 @@ export const playlistRoutes: FastifyPluginAsync = async (app) => {
     }
 
     // Verify ownership
-    const existing = await getOne('SELECT id FROM playlists WHERE id = $1 AND user_id = $2', [id, request.userId]);
+    const existing = await getOne('SELECT id FROM playlists WHERE id = $1 AND user_id = $2', [
+      id,
+      request.userId,
+    ]);
     if (!existing) {
       return reply.status(404).send({ error: 'Playlist not found' });
     }
@@ -152,10 +155,10 @@ export const playlistRoutes: FastifyPluginAsync = async (app) => {
   app.delete('/playlists/:id', { preHandler: [app.authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string };
 
-    const result = await query(
-      'DELETE FROM playlists WHERE id = $1 AND user_id = $2',
-      [id, request.userId],
-    );
+    const result = await query('DELETE FROM playlists WHERE id = $1 AND user_id = $2', [
+      id,
+      request.userId,
+    ]);
 
     if (result.rowCount === 0) {
       return reply.status(404).send({ error: 'Playlist not found' });
@@ -175,7 +178,10 @@ export const playlistRoutes: FastifyPluginAsync = async (app) => {
     }
 
     // Verify ownership
-    const playlist = await getOne('SELECT id FROM playlists WHERE id = $1 AND user_id = $2', [id, request.userId]);
+    const playlist = await getOne('SELECT id FROM playlists WHERE id = $1 AND user_id = $2', [
+      id,
+      request.userId,
+    ]);
     if (!playlist) {
       return reply.status(404).send({ error: 'Playlist not found' });
     }
@@ -191,33 +197,48 @@ export const playlistRoutes: FastifyPluginAsync = async (app) => {
       `INSERT INTO playlist_tracks (playlist_id, video_id, title, artist, duration, thumbnail_url, position)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, video_id, title, artist, duration, thumbnail_url, position, added_at`,
-      [id, body.data.videoId, body.data.title, body.data.artist || null, body.data.duration || null, body.data.thumbnailUrl || null, nextPos],
+      [
+        id,
+        body.data.videoId,
+        body.data.title,
+        body.data.artist || null,
+        body.data.duration || null,
+        body.data.thumbnailUrl || null,
+        nextPos,
+      ],
     );
 
     return reply.status(201).send({ track: result });
   });
 
   // Remove track from playlist
-  app.delete('/playlists/:id/tracks/:trackId', { preHandler: [app.authenticate] }, async (request, reply) => {
-    const { id, trackId } = request.params as { id: string; trackId: string };
+  app.delete(
+    '/playlists/:id/tracks/:trackId',
+    { preHandler: [app.authenticate] },
+    async (request, reply) => {
+      const { id, trackId } = request.params as { id: string; trackId: string };
 
-    // Verify ownership
-    const playlist = await getOne('SELECT id FROM playlists WHERE id = $1 AND user_id = $2', [id, request.userId]);
-    if (!playlist) {
-      return reply.status(404).send({ error: 'Playlist not found' });
-    }
+      // Verify ownership
+      const playlist = await getOne('SELECT id FROM playlists WHERE id = $1 AND user_id = $2', [
+        id,
+        request.userId,
+      ]);
+      if (!playlist) {
+        return reply.status(404).send({ error: 'Playlist not found' });
+      }
 
-    const result = await query(
-      'DELETE FROM playlist_tracks WHERE id = $1 AND playlist_id = $2',
-      [trackId, id],
-    );
+      const result = await query('DELETE FROM playlist_tracks WHERE id = $1 AND playlist_id = $2', [
+        trackId,
+        id,
+      ]);
 
-    if (result.rowCount === 0) {
-      return reply.status(404).send({ error: 'Track not found in playlist' });
-    }
+      if (result.rowCount === 0) {
+        return reply.status(404).send({ error: 'Track not found in playlist' });
+      }
 
-    return reply.send({ message: 'Track removed from playlist' });
-  });
+      return reply.send({ message: 'Track removed from playlist' });
+    },
+  );
 
   // ─── Favorites ────────────────────────────────────────────
 
@@ -244,7 +265,14 @@ export const playlistRoutes: FastifyPluginAsync = async (app) => {
          VALUES ($1, $2, $3, $4, $5, $6)
          ON CONFLICT (user_id, video_id) DO NOTHING
          RETURNING id, video_id, title, artist, duration, thumbnail_url, created_at`,
-        [request.userId, body.data.videoId, body.data.title, body.data.artist || null, body.data.duration || null, body.data.thumbnailUrl || null],
+        [
+          request.userId,
+          body.data.videoId,
+          body.data.title,
+          body.data.artist || null,
+          body.data.duration || null,
+          body.data.thumbnailUrl || null,
+        ],
       );
 
       if (!result) {
@@ -259,32 +287,40 @@ export const playlistRoutes: FastifyPluginAsync = async (app) => {
   });
 
   // Remove from favorites
-  app.delete('/library/favorites/:videoId', { preHandler: [app.authenticate] }, async (request, reply) => {
-    const { videoId } = request.params as { videoId: string };
+  app.delete(
+    '/library/favorites/:videoId',
+    { preHandler: [app.authenticate] },
+    async (request, reply) => {
+      const { videoId } = request.params as { videoId: string };
 
-    const result = await query(
-      'DELETE FROM favorites WHERE user_id = $1 AND video_id = $2',
-      [request.userId, videoId],
-    );
+      const result = await query('DELETE FROM favorites WHERE user_id = $1 AND video_id = $2', [
+        request.userId,
+        videoId,
+      ]);
 
-    if (result.rowCount === 0) {
-      return reply.status(404).send({ error: 'Favorite not found' });
-    }
+      if (result.rowCount === 0) {
+        return reply.status(404).send({ error: 'Favorite not found' });
+      }
 
-    return reply.send({ message: 'Removed from favorites' });
-  });
+      return reply.send({ message: 'Removed from favorites' });
+    },
+  );
 
   // Check if track is favorited
-  app.get('/library/favorites/:videoId', { preHandler: [app.authenticate] }, async (request, reply) => {
-    const { videoId } = request.params as { videoId: string };
+  app.get(
+    '/library/favorites/:videoId',
+    { preHandler: [app.authenticate] },
+    async (request, reply) => {
+      const { videoId } = request.params as { videoId: string };
 
-    const result = await getOne(
-      'SELECT id FROM favorites WHERE user_id = $1 AND video_id = $2',
-      [request.userId, videoId],
-    );
+      const result = await getOne('SELECT id FROM favorites WHERE user_id = $1 AND video_id = $2', [
+        request.userId,
+        videoId,
+      ]);
 
-    return reply.send({ isFavorite: !!result });
-  });
+      return reply.send({ isFavorite: !!result });
+    },
+  );
 
   // ─── Listening History ────────────────────────────────────
 
@@ -314,7 +350,15 @@ export const playlistRoutes: FastifyPluginAsync = async (app) => {
       `INSERT INTO listening_history (user_id, video_id, title, artist, duration, thumbnail_url, play_duration)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, video_id, title, played_at`,
-      [request.userId, body.data.videoId, body.data.title, body.data.artist || null, body.data.duration || null, body.data.thumbnailUrl || null, body.data.playDuration],
+      [
+        request.userId,
+        body.data.videoId,
+        body.data.title,
+        body.data.artist || null,
+        body.data.duration || null,
+        body.data.thumbnailUrl || null,
+        body.data.playDuration,
+      ],
     );
 
     return reply.status(201).send({ entry: result });

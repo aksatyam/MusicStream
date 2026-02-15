@@ -15,10 +15,11 @@ A step-by-step guide for setting up, running, and testing the MusicStream applic
 7. [Playlists & Library](#7-playlists--library)
 8. [Offline Downloads](#8-offline-downloads)
 9. [Running Tests](#9-running-tests)
-10. [API Reference](#10-api-reference)
-11. [Dev Startup Script](#11-dev-startup-script)
-12. [Project Structure](#12-project-structure)
-13. [Troubleshooting](#13-troubleshooting)
+10. [Code Formatting](#10-code-formatting)
+11. [API Reference](#11-api-reference)
+12. [Dev Startup Script](#12-dev-startup-script)
+13. [Project Structure](#13-project-structure)
+14. [Troubleshooting](#14-troubleshooting)
 
 ---
 
@@ -26,16 +27,16 @@ A step-by-step guide for setting up, running, and testing the MusicStream applic
 
 Install the following before proceeding:
 
-| Tool | Version | Check |
-|------|---------|-------|
-| **Node.js** | 22+ | `node -v` |
-| **npm** | 10+ | `npm -v` |
-| **Docker Desktop** | Latest | `docker --version` |
-| **yt-dlp** | Latest | `yt-dlp --version` |
-| **Xcode** | 15+ (macOS, for iOS) | `xcode-select -p` |
-| **CocoaPods** | Latest | `pod --version` |
-| **Android Studio** | Latest (for Android) | — |
-| **Git** | Latest | `git --version` |
+| Tool               | Version              | Check              |
+| ------------------ | -------------------- | ------------------ |
+| **Node.js**        | 22+                  | `node -v`          |
+| **npm**            | 10+                  | `npm -v`           |
+| **Docker Desktop** | Latest               | `docker --version` |
+| **yt-dlp**         | Latest               | `yt-dlp --version` |
+| **Xcode**          | 15+ (macOS, for iOS) | `xcode-select -p`  |
+| **CocoaPods**      | Latest               | `pod --version`    |
+| **Android Studio** | Latest (for Android) | —                  |
+| **Git**            | Latest               | `git --version`    |
 
 ### macOS-specific setup
 
@@ -106,6 +107,7 @@ You have two options: the automated script or manual setup.
 ```
 
 This single command will:
+
 1. Check that Docker and Node.js are installed
 2. Install any missing npm dependencies
 3. Start PostgreSQL 16 and Redis 7 via Docker
@@ -161,12 +163,21 @@ Expected response:
 }
 ```
 
-### Optional: Start extractors
+### Music extractors
 
-Extractors (Invidious, Piped) provide the actual music content. They are optional for basic development but required for search and playback to work.
+The app uses a multi-extractor pipeline to fetch music. There are three extraction backends, tried in order:
+
+1. **Invidious** (Docker, port 3001) — primary extractor
+2. **Piped** (Docker, port 3002) — secondary extractor
+3. **yt-dlp** (local binary) — always-available fallback
+
+**yt-dlp is installed locally and works without Docker extractors.** This means search and playback will work even if Invidious and Piped are not running, as long as `yt-dlp` is installed on your system.
 
 ```bash
-# Start with extractors
+# Verify yt-dlp is installed
+yt-dlp --version
+
+# Optionally start Docker-based extractors for better performance
 ./scripts/dev-start.sh --full
 
 # Or manually
@@ -196,6 +207,7 @@ npx react-native run-ios
 ```
 
 This will:
+
 - Build the iOS app using Xcode
 - Launch the iPhone simulator
 - Install and open the app
@@ -270,7 +282,7 @@ Save the `accessToken` from the response for authenticated API calls.
 
 ## 6. Search & Play Music
 
-> **Requires:** At least one extractor running (Invidious or Piped).
+> **Requires:** yt-dlp installed locally, or at least one Docker extractor running (Invidious or Piped).
 
 ### In the app
 
@@ -284,11 +296,19 @@ Save the `accessToken` from the response for authenticated API calls.
 ### Now Playing features
 
 - **Seek bar** — drag to jump to any position
-- **Play/Pause** — center button
+- **Play/Pause** — center button with green glow
 - **Skip Next/Previous** — side buttons
+- **Shuffle** — toggle shuffle mode (left of controls)
+- **Repeat** — toggle repeat mode (right of controls)
 - **Heart icon** — toggle favorite
 - **Queue icon** — view and manage the playback queue
 - **Add to playlist** — add the current track to any playlist
+
+### Audio playback notes
+
+- On **iOS**, the app selects MP4/AAC audio streams (iOS AVPlayer does not support WebM/OPUS)
+- On **Android**, the app prefers OPUS streams for better quality at lower bitrates
+- Stream URLs are resolved via the backend extractor pipeline and cached in Redis for 30 minutes
 
 ### Via API
 
@@ -434,62 +454,108 @@ npm test -- --verbose --coverage
 
 ### What's tested
 
-| Area | Suite | Tests |
-|------|-------|-------|
-| **Backend** | Auth Service | register, login, verifyToken, getUserById, AuthError |
+| Area        | Suite             | Tests                                                                       |
+| ----------- | ----------------- | --------------------------------------------------------------------------- |
+| **Backend** | Auth Service      | register, login, verifyToken, getUserById, AuthError                        |
 | **Backend** | Extractor Service | search, cache hit, piped fallback, circuit breaker, getStreams, getTrending |
-| **Backend** | Health Route | /health endpoint, DB/Redis degraded states |
-| **Backend** | Auth Route | Zod validation for register, login, refresh |
-| **Backend** | Search Route | query validation, search results, 502 handling, suggestions, trending |
-| **Backend** | Track Route | stream metadata, 502, placeholder endpoints |
-| **Mobile** | Auth Store | setAuth, setTokens, logout, hydrate from MMKV |
-| **Mobile** | Player Store | playTrack, addToQueue, skip, togglePlayPause, clearQueue |
-| **Mobile** | Library Store | playlists CRUD, optimistic favorites, isFavorite, history |
-| **Mobile** | TrackCard | render, onPress, onLongPress, duration formatting |
-| **Mobile** | Toast | success/error/info, dismiss, multiple messages |
-| **Mobile** | QueueView | empty state, render tracks, clear, track press |
+| **Backend** | Health Route      | /health endpoint, DB/Redis degraded states                                  |
+| **Backend** | Auth Route        | Zod validation for register, login, refresh                                 |
+| **Backend** | Search Route      | query validation, search results, 502 handling, suggestions, trending       |
+| **Backend** | Track Route       | stream metadata, 502, placeholder endpoints                                 |
+| **Mobile**  | Auth Store        | setAuth, setTokens, logout, hydrate from MMKV                               |
+| **Mobile**  | Player Store      | playTrack, addToQueue, skip, togglePlayPause, clearQueue                    |
+| **Mobile**  | Library Store     | playlists CRUD, optimistic favorites, isFavorite, history                   |
+| **Mobile**  | TrackCard         | render, onPress, onLongPress, duration formatting                           |
+| **Mobile**  | Toast             | success/error/info, dismiss, multiple messages                              |
+| **Mobile**  | QueueView         | empty state, render tracks, clear, track press                              |
 
 ---
 
-## 10. API Reference
+## 10. Code Formatting
+
+The project uses **Prettier** for consistent code formatting across backend, mobile, and documentation.
+
+### Format everything (code + markdown)
+
+```bash
+./scripts/format.sh
+```
+
+This single command formats:
+
+- **Backend**: All TypeScript files in `backend/src/` and `backend/test/`
+- **Mobile**: All TypeScript/TSX files in `mobile/src/`, `mobile/__tests__/`, and `mobile/App.tsx`
+- **Docs**: All Markdown files in the project root, `docs/`, and `infrastructure/docs/`
+
+### Check formatting (CI mode)
+
+```bash
+./scripts/format.sh --check
+```
+
+Returns exit code 1 if any files need formatting. Useful for CI pipelines.
+
+### Format only code or only docs
+
+```bash
+./scripts/format.sh --code   # Format only TypeScript/TSX
+./scripts/format.sh --docs   # Format only Markdown files
+```
+
+### Format individual packages
+
+```bash
+cd backend && npm run format        # Backend only
+cd mobile && npm run format         # Mobile only
+```
+
+### Configuration
+
+- Root config: `.prettierrc.json` (shared settings)
+- Mobile override: `mobile/.prettierrc.js`
+- Key settings: single quotes, trailing commas, 100-char print width
+
+---
+
+## 11. API Reference
 
 All endpoints are prefixed with `/api`.
 
 ### Public endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/health` | Health check (DB, Redis, extractors) |
-| `GET` | `/admin/extractors` | Extractor circuit breaker status |
-| `POST` | `/auth/register` | Create new account |
-| `POST` | `/auth/login` | Login with email/password |
-| `POST` | `/auth/refresh` | Rotate JWT tokens |
-| `GET` | `/search?q=<query>` | Search for tracks |
-| `GET` | `/search/suggestions?q=<query>` | Search autocomplete |
-| `GET` | `/trending` | Trending tracks |
-| `GET` | `/tracks/:videoId` | Get track metadata + audio streams |
+| Method | Path                            | Description                          |
+| ------ | ------------------------------- | ------------------------------------ |
+| `GET`  | `/health`                       | Health check (DB, Redis, extractors) |
+| `GET`  | `/admin/extractors`             | Extractor circuit breaker status     |
+| `POST` | `/auth/register`                | Create new account                   |
+| `POST` | `/auth/login`                   | Login with email/password            |
+| `POST` | `/auth/refresh`                 | Rotate JWT tokens                    |
+| `GET`  | `/search?q=<query>`             | Search for tracks                    |
+| `GET`  | `/search/suggestions?q=<query>` | Search autocomplete                  |
+| `GET`  | `/trending`                     | Trending tracks                      |
+| `GET`  | `/tracks/:videoId`              | Get track metadata + audio streams   |
 
 ### Authenticated endpoints (require `Authorization: Bearer <token>`)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/playlists` | List user's playlists |
-| `POST` | `/playlists` | Create a playlist |
-| `GET` | `/playlists/:id` | Get playlist with tracks |
-| `PUT` | `/playlists/:id` | Update playlist name/description |
-| `DELETE` | `/playlists/:id` | Delete a playlist |
-| `POST` | `/playlists/:id/tracks` | Add track to playlist |
-| `DELETE` | `/playlists/:id/tracks/:trackId` | Remove track from playlist |
-| `GET` | `/library/favorites` | List favorites |
-| `POST` | `/library/favorites` | Add to favorites |
-| `GET` | `/library/favorites/:videoId` | Check if favorited |
-| `DELETE` | `/library/favorites/:videoId` | Remove from favorites |
-| `GET` | `/library/history` | Get listening history |
-| `POST` | `/library/history` | Record a play event |
+| Method   | Path                             | Description                      |
+| -------- | -------------------------------- | -------------------------------- |
+| `GET`    | `/playlists`                     | List user's playlists            |
+| `POST`   | `/playlists`                     | Create a playlist                |
+| `GET`    | `/playlists/:id`                 | Get playlist with tracks         |
+| `PUT`    | `/playlists/:id`                 | Update playlist name/description |
+| `DELETE` | `/playlists/:id`                 | Delete a playlist                |
+| `POST`   | `/playlists/:id/tracks`          | Add track to playlist            |
+| `DELETE` | `/playlists/:id/tracks/:trackId` | Remove track from playlist       |
+| `GET`    | `/library/favorites`             | List favorites                   |
+| `POST`   | `/library/favorites`             | Add to favorites                 |
+| `GET`    | `/library/favorites/:videoId`    | Check if favorited               |
+| `DELETE` | `/library/favorites/:videoId`    | Remove from favorites            |
+| `GET`    | `/library/history`               | Get listening history            |
+| `POST`   | `/library/history`               | Record a play event              |
 
 ---
 
-## 11. Dev Startup Script
+## 12. Dev Startup Script
 
 The `scripts/dev-start.sh` script automates the full local setup:
 
@@ -515,20 +581,20 @@ The `scripts/dev-start.sh` script automates the full local setup:
 
 ### Ports after startup
 
-| Service | Port | URL |
-|---------|------|-----|
-| API Server | 3000 | http://localhost:3000 |
-| PostgreSQL | 5432 | `psql -h localhost -U musicstream` |
-| Redis | 6379 | `redis-cli` |
-| Invidious | 3001 | http://localhost:3001 (with `--full`) |
-| Piped | 3002 | http://localhost:3002 (with `--full`) |
+| Service       | Port | URL                                   |
+| ------------- | ---- | ------------------------------------- |
+| API Server    | 3000 | http://localhost:3000                 |
+| PostgreSQL    | 5432 | `psql -h localhost -U musicstream`    |
+| Redis         | 6379 | `redis-cli`                           |
+| Invidious     | 3001 | http://localhost:3001 (with `--full`) |
+| Piped         | 3002 | http://localhost:3002 (with `--full`) |
 | MinIO Console | 9001 | http://localhost:9001 (with `--full`) |
-| Prometheus | 9090 | http://localhost:9090 (with `--full`) |
-| Grafana | 3005 | http://localhost:3005 (with `--full`) |
+| Prometheus    | 9090 | http://localhost:9090 (with `--full`) |
+| Grafana       | 3005 | http://localhost:3005 (with `--full`) |
 
 ---
 
-## 12. Project Structure
+## 13. Project Structure
 
 ```
 MusicStream/
@@ -546,7 +612,8 @@ MusicStream/
 │   │   │   ├── auth.ts         # Argon2 hashing, JWT sign/verify
 │   │   │   ├── cache.ts        # Redis wrapper with TTLs
 │   │   │   ├── db.ts           # PostgreSQL pool + helpers
-│   │   │   └── extractor.ts    # Invidious/Piped orchestrator
+│   │   │   ├── extractor.ts    # Invidious/Piped/yt-dlp orchestrator
+│   │   │   └── ytdlp.ts        # yt-dlp local extractor (search, streams, trending)
 │   │   └── server.ts           # Fastify app entry point
 │   ├── test/                   # Jest test suites
 │   ├── migrations/             # SQL schema migrations
@@ -577,7 +644,7 @@ MusicStream/
 │   │   │   └── Register.tsx
 │   │   ├── services/           # API client, player setup, downloads
 │   │   ├── stores/             # Zustand state (auth, player, library)
-│   │   ├── theme/              # Colors, spacing, typography
+│   │   ├── theme/              # Colors, spacing, typography, shadows, icon sizes
 │   │   └── types/              # TypeScript type definitions
 │   ├── __tests__/              # Jest test suites
 │   ├── ios/                    # Xcode project
@@ -597,7 +664,7 @@ MusicStream/
 
 ---
 
-## 13. Troubleshooting
+## 14. Troubleshooting
 
 ### Docker containers won't start
 
@@ -659,11 +726,30 @@ lsof -ti:3000 | xargs kill -9
 ./scripts/dev-start.sh --stop
 ```
 
-### Extractors fail (ARM64 / Apple Silicon)
+### Search returns "All extractors failed"
+
+This means Invidious, Piped, and yt-dlp all failed. Most commonly yt-dlp is not installed:
+
+```bash
+# Install yt-dlp
+brew install yt-dlp
+
+# Verify it works
+yt-dlp --version
+
+# Update to latest (fixes for site changes)
+brew upgrade yt-dlp
+```
+
+If yt-dlp is installed but still failing, it may need an update (YouTube changes break older versions frequently).
+
+### Docker extractors fail (ARM64 / Apple Silicon)
 
 Invidious needs to build from source on Apple Silicon. This is handled by the custom Dockerfile at `docker/invidious/Dockerfile`. First build takes 5-10 minutes.
 
 If Piped fails, it runs via Rosetta emulation (`platform: linux/amd64`). Ensure Rosetta is enabled in Docker Desktop settings.
+
+> **Note:** Docker extractors are optional. The yt-dlp local fallback handles search and playback without them.
 
 ### MMKV storage issues
 

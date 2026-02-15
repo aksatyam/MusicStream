@@ -44,7 +44,12 @@ describe('Library Store', () => {
       mockGet.mockResolvedValueOnce({
         data: {
           playlists: [
-            { id: 'p1', name: 'My Playlist', description: null, track_count: 5 },
+            {
+              id: 'p1',
+              name: 'My Playlist',
+              description: null,
+              track_count: 5,
+            },
           ],
         },
       });
@@ -58,10 +63,14 @@ describe('Library Store', () => {
 
     it('should create a playlist', async () => {
       mockPost.mockResolvedValueOnce({
-        data: { playlist: { id: 'p2', name: 'New Playlist', description: 'desc' } },
+        data: {
+          playlist: { id: 'p2', name: 'New Playlist', description: 'desc' },
+        },
       });
 
-      const result = await useLibraryStore.getState().createPlaylist('New Playlist', 'desc');
+      const result = await useLibraryStore
+        .getState()
+        .createPlaylist('New Playlist', 'desc');
 
       expect(result).toBeTruthy();
       expect(result?.name).toBe('New Playlist');
@@ -71,7 +80,16 @@ describe('Library Store', () => {
     it('should delete a playlist', async () => {
       useLibraryStore.setState({
         playlists: [
-          { id: 'p1', name: 'Playlist 1', description: null, cover_image_url: null, is_public: false, track_count: 0, created_at: '', updated_at: '' },
+          {
+            id: 'p1',
+            name: 'Playlist 1',
+            description: null,
+            cover_image_url: null,
+            is_public: false,
+            track_count: 0,
+            created_at: '',
+            updated_at: '',
+          },
         ],
       });
       mockDelete.mockResolvedValueOnce({});
@@ -84,7 +102,16 @@ describe('Library Store', () => {
     it('should add track to playlist and increment count', async () => {
       useLibraryStore.setState({
         playlists: [
-          { id: 'p1', name: 'Playlist', description: null, cover_image_url: null, is_public: false, track_count: 3, created_at: '', updated_at: '' },
+          {
+            id: 'p1',
+            name: 'Playlist',
+            description: null,
+            cover_image_url: null,
+            is_public: false,
+            track_count: 3,
+            created_at: '',
+            updated_at: '',
+          },
         ],
       });
       mockPost.mockResolvedValueOnce({});
@@ -97,7 +124,16 @@ describe('Library Store', () => {
     it('should remove track from playlist and decrement count', async () => {
       useLibraryStore.setState({
         playlists: [
-          { id: 'p1', name: 'Playlist', description: null, cover_image_url: null, is_public: false, track_count: 3, created_at: '', updated_at: '' },
+          {
+            id: 'p1',
+            name: 'Playlist',
+            description: null,
+            cover_image_url: null,
+            is_public: false,
+            track_count: 3,
+            created_at: '',
+            updated_at: '',
+          },
         ],
       });
       mockDelete.mockResolvedValueOnce({});
@@ -113,7 +149,14 @@ describe('Library Store', () => {
       mockGet.mockResolvedValueOnce({
         data: {
           favorites: [
-            { id: 'f1', video_id: 'vid-1', title: 'Fav Song', artist: 'Artist', duration: 200, thumbnail_url: '' },
+            {
+              id: 'f1',
+              video_id: 'vid-1',
+              title: 'Fav Song',
+              artist: 'Artist',
+              duration: 200,
+              thumbnail_url: '',
+            },
           ],
         },
       });
@@ -137,7 +180,15 @@ describe('Library Store', () => {
     it('should remove favorite optimistically', async () => {
       useLibraryStore.setState({
         favorites: [
-          { id: 'f1', video_id: 'test-123', title: 'Test Song', artist: 'Artist', duration: 240, thumbnail_url: '', created_at: '' },
+          {
+            id: 'f1',
+            video_id: 'test-123',
+            title: 'Test Song',
+            artist: 'Artist',
+            duration: 240,
+            thumbnail_url: '',
+            created_at: '',
+          },
         ],
       });
       mockDelete.mockResolvedValueOnce({});
@@ -150,7 +201,15 @@ describe('Library Store', () => {
     it('should check isFavorite correctly', () => {
       useLibraryStore.setState({
         favorites: [
-          { id: 'f1', video_id: 'vid-1', title: 'Song', artist: null, duration: null, thumbnail_url: null, created_at: '' },
+          {
+            id: 'f1',
+            video_id: 'vid-1',
+            title: 'Song',
+            artist: null,
+            duration: null,
+            thumbnail_url: null,
+            created_at: '',
+          },
         ],
       });
 
@@ -173,7 +232,14 @@ describe('Library Store', () => {
       mockGet.mockResolvedValueOnce({
         data: {
           history: [
-            { id: 'h1', video_id: 'vid-1', title: 'Listened Song', artist: 'Artist', played_at: '', play_duration: 120 },
+            {
+              id: 'h1',
+              video_id: 'vid-1',
+              title: 'Listened Song',
+              artist: 'Artist',
+              played_at: '',
+              play_duration: 120,
+            },
           ],
         },
       });
@@ -189,10 +255,13 @@ describe('Library Store', () => {
 
       await useLibraryStore.getState().recordHistory(mockTrack, 120);
 
-      expect(mockPost).toHaveBeenCalledWith('/library/history', expect.objectContaining({
-        videoId: 'test-123',
-        playDuration: 120,
-      }));
+      expect(mockPost).toHaveBeenCalledWith(
+        '/library/history',
+        expect.objectContaining({
+          videoId: 'test-123',
+          playDuration: 120,
+        }),
+      );
     });
   });
 });

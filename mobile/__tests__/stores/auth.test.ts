@@ -22,7 +22,12 @@ describe('Auth Store', () => {
   });
 
   it('should set auth data', () => {
-    const user = { id: '1', email: 'test@test.com', displayName: 'Test', avatarUrl: null };
+    const user = {
+      id: '1',
+      email: 'test@test.com',
+      displayName: 'Test',
+      avatarUrl: null,
+    };
 
     useAuthStore.getState().setAuth(user, 'access-token', 'refresh-token');
 
@@ -35,7 +40,12 @@ describe('Auth Store', () => {
   });
 
   it('should update tokens', () => {
-    const user = { id: '1', email: 'test@test.com', displayName: 'Test', avatarUrl: null };
+    const user = {
+      id: '1',
+      email: 'test@test.com',
+      displayName: 'Test',
+      avatarUrl: null,
+    };
     useAuthStore.getState().setAuth(user, 'old-access', 'old-refresh');
 
     useAuthStore.getState().setTokens('new-access', 'new-refresh');
@@ -48,7 +58,12 @@ describe('Auth Store', () => {
   });
 
   it('should logout and clear state', () => {
-    const user = { id: '1', email: 'test@test.com', displayName: 'Test', avatarUrl: null };
+    const user = {
+      id: '1',
+      email: 'test@test.com',
+      displayName: 'Test',
+      avatarUrl: null,
+    };
     useAuthStore.getState().setAuth(user, 'access', 'refresh');
 
     useAuthStore.getState().logout();
@@ -63,7 +78,12 @@ describe('Auth Store', () => {
 
   it('should hydrate from storage when data exists', () => {
     // The MMKV mock stores data in memory, so setAuth stores it
-    const user = { id: '1', email: 'test@test.com', displayName: 'Test', avatarUrl: null };
+    const user = {
+      id: '1',
+      email: 'test@test.com',
+      displayName: 'Test',
+      avatarUrl: null,
+    };
     useAuthStore.getState().setAuth(user, 'access-token', 'refresh-token');
 
     // Reset state (simulating app restart)

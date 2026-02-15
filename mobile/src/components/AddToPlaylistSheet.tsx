@@ -57,8 +57,13 @@ export default function AddToPlaylistSheet({
       visible={visible}
       transparent
       animationType="slide"
-      onRequestClose={onClose}>
-      <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
+      onRequestClose={onClose}
+    >
+      <TouchableOpacity
+        style={styles.overlay}
+        activeOpacity={1}
+        onPress={onClose}
+      >
         <View style={styles.sheet} onStartShouldSetResponder={() => true}>
           <View style={styles.handle} />
 
@@ -84,13 +89,18 @@ export default function AddToPlaylistSheet({
                   onPress={() => {
                     setShowCreate(false);
                     setNewName('');
-                  }}>
+                  }}
+                >
                   <Text style={styles.cancelText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.createBtn, !newName.trim() && styles.createBtnDisabled]}
+                  style={[
+                    styles.createBtn,
+                    !newName.trim() && styles.createBtnDisabled,
+                  ]}
                   onPress={handleCreate}
-                  disabled={!newName.trim()}>
+                  disabled={!newName.trim()}
+                >
                   <Text style={styles.createBtnText}>Create & Add</Text>
                 </TouchableOpacity>
               </View>
@@ -99,18 +109,20 @@ export default function AddToPlaylistSheet({
             <>
               <TouchableOpacity
                 style={styles.newPlaylistRow}
-                onPress={() => setShowCreate(true)}>
+                onPress={() => setShowCreate(true)}
+              >
                 <Text style={styles.newPlaylistIcon}>+</Text>
                 <Text style={styles.newPlaylistText}>New Playlist</Text>
               </TouchableOpacity>
 
               <FlatList
                 data={playlists}
-                keyExtractor={(item) => item.id}
+                keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.playlistRow}
-                    onPress={() => handleSelect(item.id, item.name)}>
+                    onPress={() => handleSelect(item.id, item.name)}
+                  >
                     <View style={styles.playlistIcon}>
                       <Text style={styles.playlistIconText}>♫</Text>
                     </View>

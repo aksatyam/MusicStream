@@ -26,8 +26,8 @@ export const useToastStore = create<ToastState>((set, get) => ({
     set({ messages: [...get().messages, { id, text, type }] });
     setTimeout(() => get().dismiss(id), 3000);
   },
-  dismiss: (id) => {
-    set({ messages: get().messages.filter((m) => m.id !== id) });
+  dismiss: id => {
+    set({ messages: get().messages.filter(m => m.id !== id) });
   },
 }));
 
@@ -44,14 +44,30 @@ function ToastItem({ message }: { message: ToastMessage }) {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 200, useNativeDriver: true }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
     ]).start();
 
     const timer = setTimeout(() => {
       Animated.parallel([
-        Animated.timing(opacity, { toValue: 0, duration: 200, useNativeDriver: true }),
-        Animated.timing(translateY, { toValue: -20, duration: 200, useNativeDriver: true }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: -20,
+          duration: 200,
+          useNativeDriver: true,
+        }),
       ]).start();
     }, 2700);
 
@@ -62,28 +78,29 @@ function ToastItem({ message }: { message: ToastMessage }) {
     message.type === 'success'
       ? colors.success
       : message.type === 'error'
-        ? colors.error
-        : colors.surfaceLight;
+      ? colors.error
+      : colors.surfaceLight;
 
   return (
     <Animated.View
       style={[
         styles.toast,
         { backgroundColor: bgColor, opacity, transform: [{ translateY }] },
-      ]}>
+      ]}
+    >
       <Text style={styles.toastText}>{message.text}</Text>
     </Animated.View>
   );
 }
 
 export default function ToastContainer() {
-  const messages = useToastStore((s) => s.messages);
+  const messages = useToastStore(s => s.messages);
 
   if (messages.length === 0) return null;
 
   return (
     <Animated.View style={styles.container} pointerEvents="none">
-      {messages.map((msg) => (
+      {messages.map(msg => (
         <ToastItem key={msg.id} message={msg} />
       ))}
     </Animated.View>

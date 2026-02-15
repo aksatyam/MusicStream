@@ -36,7 +36,11 @@ describe('TrackCard', () => {
     const onPress = jest.fn();
     const onLongPress = jest.fn();
     const { getByText } = render(
-      <TrackCard track={mockTrack} onPress={onPress} onLongPress={onLongPress} />,
+      <TrackCard
+        track={mockTrack}
+        onPress={onPress}
+        onLongPress={onLongPress}
+      />,
     );
 
     fireEvent(getByText('Test Song'), 'longPress');

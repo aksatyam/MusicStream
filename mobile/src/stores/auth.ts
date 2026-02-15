@@ -23,7 +23,7 @@ interface AuthState {
   hydrate: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>(set => ({
   user: null,
   accessToken: null,
   refreshToken: null,
@@ -34,7 +34,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     storage.set('user', JSON.stringify(user));
     storage.set('accessToken', accessToken);
     storage.set('refreshToken', refreshToken);
-    set({ user, accessToken, refreshToken, isAuthenticated: true, isLoading: false });
+    set({
+      user,
+      accessToken,
+      refreshToken,
+      isAuthenticated: true,
+      isLoading: false,
+    });
   },
 
   setTokens: (accessToken, refreshToken) => {
@@ -47,7 +53,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     storage.delete('user');
     storage.delete('accessToken');
     storage.delete('refreshToken');
-    set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false, isLoading: false });
+    set({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
   },
 
   hydrate: () => {
@@ -58,7 +70,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (userJson && accessToken && refreshToken) {
         const user = JSON.parse(userJson) as User;
-        set({ user, accessToken, refreshToken, isAuthenticated: true, isLoading: false });
+        set({
+          user,
+          accessToken,
+          refreshToken,
+          isAuthenticated: true,
+          isLoading: false,
+        });
       } else {
         set({ isLoading: false });
       }

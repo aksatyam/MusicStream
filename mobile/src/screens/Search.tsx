@@ -79,13 +79,10 @@ export default function SearchScreen() {
     [playTrack],
   );
 
-  const handleTrackLongPress = useCallback(
-    (track: TrackMeta) => {
-      setSelectedTrack(track);
-      setShowPlaylistSheet(true);
-    },
-    [],
-  );
+  const handleTrackLongPress = useCallback((track: TrackMeta) => {
+    setSelectedTrack(track);
+    setShowPlaylistSheet(true);
+  }, []);
 
   const renderItem = useCallback(
     ({ item }: { item: TrackMeta }) => (
@@ -122,8 +119,15 @@ export default function SearchScreen() {
             onSubmitEditing={() => performSearch(query)}
           />
           {query.length > 0 && (
-            <TouchableOpacity onPress={handleClearSearch} style={styles.clearBtn}>
-              <Ionicons name="close-circle" size={iconSizes.sm} color={colors.textMuted} />
+            <TouchableOpacity
+              onPress={handleClearSearch}
+              style={styles.clearBtn}
+            >
+              <Ionicons
+                name="close-circle"
+                size={iconSizes.sm}
+                color={colors.textMuted}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -134,7 +138,7 @@ export default function SearchScreen() {
       ) : results.length > 0 ? (
         <FlatList
           data={results}
-          keyExtractor={(item) => item.videoId}
+          keyExtractor={item => item.videoId}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
         />

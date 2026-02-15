@@ -13,7 +13,7 @@ class CacheService {
       lazyConnect: true,
     });
 
-    this.redis.on('error', (err) => {
+    this.redis.on('error', err => {
       console.error('Redis connection error:', err.message);
     });
   }
@@ -66,9 +66,9 @@ export const cache = new CacheService();
 
 // TTL constants matching the action plan
 export const CACHE_TTL = {
-  SEARCH: 6 * 60 * 60,      // 6 hours
-  STREAM: 30 * 60,           // 30 minutes
-  METADATA: 24 * 60 * 60,    // 24 hours
-  TRENDING: 60 * 60,         // 1 hour
-  SUGGESTIONS: 60 * 60,      // 1 hour
+  SEARCH: 6 * 60 * 60, // 6 hours
+  STREAM: 30 * 60, // 30 minutes
+  METADATA: 24 * 60 * 60, // 24 hours
+  TRENDING: 60 * 60, // 1 hour
+  SUGGESTIONS: 60 * 60, // 1 hour
 } as const;

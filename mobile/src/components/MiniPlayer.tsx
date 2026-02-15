@@ -1,15 +1,16 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useProgress } from 'react-native-track-player';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { usePlayerStore } from '../stores/player';
-import { colors, spacing, typography, borderRadius, shadows, iconSizes } from '../theme';
+import {
+  colors,
+  spacing,
+  typography,
+  borderRadius,
+  shadows,
+  iconSizes,
+} from '../theme';
 
 interface MiniPlayerProps {
   onPress: () => void;
@@ -29,7 +30,8 @@ export default function MiniPlayer({ onPress }: MiniPlayerProps) {
     <TouchableOpacity
       style={styles.container}
       onPress={onPress}
-      activeOpacity={0.9}>
+      activeOpacity={0.9}
+    >
       <View style={styles.progressBar}>
         <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
       </View>
@@ -50,26 +52,34 @@ export default function MiniPlayer({ onPress }: MiniPlayerProps) {
         </View>
 
         <TouchableOpacity
-          onPress={(e) => {
+          onPress={e => {
             e.stopPropagation();
             togglePlayPause();
           }}
           style={styles.playBtn}
-          disabled={isLoading}>
+          disabled={isLoading}
+        >
           <Ionicons
-            name={isLoading ? 'hourglass-outline' : isPlaying ? 'pause' : 'play'}
+            name={
+              isLoading ? 'hourglass-outline' : isPlaying ? 'pause' : 'play'
+            }
             size={iconSizes.md}
             color={colors.text}
           />
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={(e) => {
+          onPress={e => {
             e.stopPropagation();
             playNext();
           }}
-          style={styles.forwardBtn}>
-          <Ionicons name="play-forward" size={iconSizes.sm} color={colors.text} />
+          style={styles.forwardBtn}
+        >
+          <Ionicons
+            name="play-forward"
+            size={iconSizes.sm}
+            color={colors.text}
+          />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>

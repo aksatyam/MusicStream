@@ -54,17 +54,21 @@ export default function DownloadsScreen({ navigation }: DownloadsProps) {
 
   const handleDeleteTrack = useCallback(
     (track: DownloadedTrack) => {
-      Alert.alert('Delete Download', `Remove "${track.title}" from downloads?`, [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteDownload(track.videoId);
-            loadDownloads();
+      Alert.alert(
+        'Delete Download',
+        `Remove "${track.title}" from downloads?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              await deleteDownload(track.videoId);
+              loadDownloads();
+            },
           },
-        },
-      ]);
+        ],
+      );
     },
     [loadDownloads],
   );
@@ -73,7 +77,9 @@ export default function DownloadsScreen({ navigation }: DownloadsProps) {
     if (tracks.length === 0) return;
     Alert.alert(
       'Delete All Downloads',
-      `Remove all ${tracks.length} downloaded tracks? This will free ${formatBytes(totalSize)}.`,
+      `Remove all ${
+        tracks.length
+      } downloaded tracks? This will free ${formatBytes(totalSize)}.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -103,7 +109,10 @@ export default function DownloadsScreen({ navigation }: DownloadsProps) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backBtn}
+        >
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerRow}>
@@ -128,7 +137,7 @@ export default function DownloadsScreen({ navigation }: DownloadsProps) {
       ) : tracks.length > 0 ? (
         <FlatList
           data={tracks}
-          keyExtractor={(item) => item.videoId}
+          keyExtractor={item => item.videoId}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
         />

@@ -48,11 +48,16 @@ function parseDuration(dur: string): number {
   const value = parseInt(match[1], 10);
   const unit = match[2];
   switch (unit) {
-    case 's': return value;
-    case 'm': return value * 60;
-    case 'h': return value * 3600;
-    case 'd': return value * 86400;
-    default: return 900;
+    case 's':
+      return value;
+    case 'm':
+      return value * 60;
+    case 'h':
+      return value * 3600;
+    case 'd':
+      return value * 86400;
+    default:
+      return 900;
   }
 }
 
@@ -76,10 +81,11 @@ export function verifyToken(token: string): TokenPayload {
 
 async function storeRefreshToken(userId: string, token: string, expiresAt: Date): Promise<void> {
   const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-  await query(
-    'INSERT INTO refresh_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)',
-    [userId, tokenHash, expiresAt],
-  );
+  await query('INSERT INTO refresh_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)', [
+    userId,
+    tokenHash,
+    expiresAt,
+  ]);
 }
 
 async function revokeRefreshToken(tokenHash: string): Promise<void> {
@@ -193,7 +199,9 @@ export async function refresh(refreshTokenStr: string) {
   const oldHash = crypto.createHash('sha256').update(refreshTokenStr).digest('hex');
   await revokeRefreshToken(oldHash);
 
-  const user = await getOne<UserRow>('SELECT id, email, display_name FROM users WHERE id = $1', [payload.sub]);
+  const user = await getOne<UserRow>('SELECT id, email, display_name FROM users WHERE id = $1', [
+    payload.sub,
+  ]);
   if (!user) {
     throw new AuthError('User not found', 401);
   }

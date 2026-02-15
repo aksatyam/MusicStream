@@ -58,7 +58,10 @@ export default function LikedSongsScreen({ navigation }: LikedSongsProps) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backBtn}
+        >
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Liked Songs</Text>
@@ -72,7 +75,7 @@ export default function LikedSongsScreen({ navigation }: LikedSongsProps) {
       ) : favorites.length > 0 ? (
         <FlatList
           data={favorites}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
         />

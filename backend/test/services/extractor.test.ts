@@ -70,7 +70,9 @@ describe('ExtractorOrchestrator', () => {
     });
 
     it('should return cached results when available', async () => {
-      const cachedResults = [{ videoId: 'cached-1', title: 'Cached', artist: 'Artist', duration: 120, thumbnail: '' }];
+      const cachedResults = [
+        { videoId: 'cached-1', title: 'Cached', artist: 'Artist', duration: 120, thumbnail: '' },
+      ];
       mockedCacheGet.mockResolvedValueOnce(cachedResults);
 
       const results = await extractorOrchestrator.search('cached query');

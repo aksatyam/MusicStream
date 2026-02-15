@@ -12,7 +12,7 @@ export const api = axios.create({
 });
 
 // Attach access token to every request
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(config => {
   const token = useAuthStore.getState().accessToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -22,8 +22,8 @@ api.interceptors.request.use((config) => {
 
 // Auto-refresh on 401
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  response => response,
+  async error => {
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {

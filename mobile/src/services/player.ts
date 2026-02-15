@@ -59,7 +59,7 @@ export async function playbackService() {
   TrackPlayer.addEventListener(Event.RemotePrevious, () => {
     TrackPlayer.skipToPrevious();
   });
-  TrackPlayer.addEventListener(Event.RemoteSeek, (event) => {
+  TrackPlayer.addEventListener(Event.RemoteSeek, event => {
     TrackPlayer.seekTo(event.position);
   });
   TrackPlayer.addEventListener(Event.RemoteStop, () => {
@@ -67,7 +67,7 @@ export async function playbackService() {
   });
 
   // Sync playback state back to Zustand store
-  TrackPlayer.addEventListener(Event.PlaybackState, (event) => {
+  TrackPlayer.addEventListener(Event.PlaybackState, event => {
     const store = usePlayerStore.getState();
     if (event.state === State.Playing) {
       store.setIsPlaying(true);
@@ -80,14 +80,17 @@ export async function playbackService() {
     }
   });
 
-  TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (event) => {
-    if (event.track) {
-      const store = usePlayerStore.getState();
-      const queue = store.queue;
-      const match = queue.find((t) => t.videoId === event.track?.id);
-      if (match) {
-        usePlayerStore.setState({ currentTrack: match });
+  TrackPlayer.addEventListener(
+    Event.PlaybackActiveTrackChanged,
+    async event => {
+      if (event.track) {
+        const store = usePlayerStore.getState();
+        const queue = store.queue;
+        const match = queue.find(t => t.videoId === event.track?.id);
+        if (match) {
+          usePlayerStore.setState({ currentTrack: match });
+        }
       }
-    }
-  });
+    },
+  );
 }

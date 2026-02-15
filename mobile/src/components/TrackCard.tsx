@@ -1,13 +1,14 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { colors, spacing, typography, borderRadius, shadows, iconSizes } from '../theme';
+import {
+  colors,
+  spacing,
+  typography,
+  borderRadius,
+  shadows,
+  iconSizes,
+} from '../theme';
 import type { TrackMeta } from '../types';
 
 interface TrackCardProps {
@@ -34,18 +35,26 @@ export default function TrackCard({
       style={[styles.container, isPlaying && styles.containerActive]}
       onPress={() => onPress(track)}
       onLongPress={() => onLongPress?.(track)}
-      activeOpacity={0.7}>
+      activeOpacity={0.7}
+    >
       <View style={styles.thumbnailWrapper}>
         <Image source={{ uri: track.thumbnail }} style={styles.thumbnail} />
         {isPlaying && (
           <View style={styles.playingIndicator}>
-            <Ionicons name="equalizer-outline" size={iconSizes.sm} color={colors.primary} />
+            <Ionicons
+              name="equalizer-outline"
+              size={iconSizes.sm}
+              color={colors.primary}
+            />
           </View>
         )}
       </View>
 
       <View style={styles.info}>
-        <Text style={[styles.title, isPlaying && styles.titleActive]} numberOfLines={1}>
+        <Text
+          style={[styles.title, isPlaying && styles.titleActive]}
+          numberOfLines={1}
+        >
           {track.title}
         </Text>
         <Text style={styles.artist} numberOfLines={1}>
@@ -58,8 +67,13 @@ export default function TrackCard({
       <TouchableOpacity
         style={styles.moreBtn}
         onPress={() => onLongPress?.(track)}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-        <Ionicons name="ellipsis-vertical" size={iconSizes.sm} color={colors.textMuted} />
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      >
+        <Ionicons
+          name="ellipsis-vertical"
+          size={iconSizes.sm}
+          color={colors.textMuted}
+        />
       </TouchableOpacity>
     </TouchableOpacity>
   );

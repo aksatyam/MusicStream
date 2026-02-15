@@ -70,7 +70,8 @@ export default function LibraryScreen({ navigation }: LibraryScreenProps) {
       {/* Liked Songs card */}
       <TouchableOpacity
         style={styles.likedCard}
-        onPress={() => navigation.navigate('LikedSongs')}>
+        onPress={() => navigation.navigate('LikedSongs')}
+      >
         <View style={styles.likedIcon}>
           <Ionicons name="heart" size={iconSizes.md} color={colors.text} />
         </View>
@@ -84,8 +85,11 @@ export default function LibraryScreen({ navigation }: LibraryScreenProps) {
       {/* Downloads card */}
       <TouchableOpacity
         style={styles.likedCard}
-        onPress={() => navigation.navigate('Downloads')}>
-        <View style={[styles.likedIcon, { backgroundColor: colors.surfaceLight }]}>
+        onPress={() => navigation.navigate('Downloads')}
+      >
+        <View
+          style={[styles.likedIcon, { backgroundColor: colors.surfaceLight }]}
+        >
           <Ionicons name="download" size={iconSizes.md} color={colors.text} />
         </View>
         <View style={styles.likedInfo}>
@@ -100,7 +104,8 @@ export default function LibraryScreen({ navigation }: LibraryScreenProps) {
         <Text style={styles.sectionTitle}>Playlists</Text>
         <TouchableOpacity
           style={styles.addBtnContainer}
-          onPress={() => setShowCreateModal(true)}>
+          onPress={() => setShowCreateModal(true)}
+        >
           <Ionicons name="add" size={iconSizes.sm} color={colors.primary} />
           <Text style={styles.addBtn}>New</Text>
         </TouchableOpacity>
@@ -117,7 +122,8 @@ export default function LibraryScreen({ navigation }: LibraryScreenProps) {
           playlistName: item.name,
         })
       }
-      onLongPress={() => handleDeletePlaylist(item.id, item.name)}>
+      onLongPress={() => handleDeletePlaylist(item.id, item.name)}
+    >
       <View style={styles.playlistCover}>
         <Ionicons name="musical-notes" size={22} color={colors.textMuted} />
       </View>
@@ -125,9 +131,7 @@ export default function LibraryScreen({ navigation }: LibraryScreenProps) {
         <Text style={styles.playlistName} numberOfLines={1}>
           {item.name}
         </Text>
-        <Text style={styles.playlistMeta}>
-          {item.track_count || 0} tracks
-        </Text>
+        <Text style={styles.playlistMeta}>{item.track_count || 0} tracks</Text>
       </View>
       <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
     </TouchableOpacity>
@@ -141,7 +145,7 @@ export default function LibraryScreen({ navigation }: LibraryScreenProps) {
 
       <FlatList
         data={playlists}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={renderPlaylist}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={
@@ -167,7 +171,8 @@ export default function LibraryScreen({ navigation }: LibraryScreenProps) {
         visible={showCreateModal}
         transparent
         animationType="fade"
-        onRequestClose={() => setShowCreateModal(false)}>
+        onRequestClose={() => setShowCreateModal(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>New Playlist</Text>
@@ -194,13 +199,18 @@ export default function LibraryScreen({ navigation }: LibraryScreenProps) {
                   setShowCreateModal(false);
                   setNewName('');
                   setNewDescription('');
-                }}>
+                }}
+              >
                 <Text style={styles.modalCancelText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalCreateBtn, !newName.trim() && styles.modalCreateBtnDisabled]}
+                style={[
+                  styles.modalCreateBtn,
+                  !newName.trim() && styles.modalCreateBtnDisabled,
+                ]}
                 onPress={handleCreate}
-                disabled={!newName.trim()}>
+                disabled={!newName.trim()}
+              >
                 <Text style={styles.modalCreateText}>Create</Text>
               </TouchableOpacity>
             </View>

@@ -54,10 +54,16 @@ interface LibraryState {
   isLoadingHistory: boolean;
 
   fetchPlaylists: () => Promise<void>;
-  createPlaylist: (name: string, description?: string) => Promise<Playlist | null>;
+  createPlaylist: (
+    name: string,
+    description?: string,
+  ) => Promise<Playlist | null>;
   deletePlaylist: (id: string) => Promise<void>;
   addTrackToPlaylist: (playlistId: string, track: TrackMeta) => Promise<void>;
-  removeTrackFromPlaylist: (playlistId: string, trackId: string) => Promise<void>;
+  removeTrackFromPlaylist: (
+    playlistId: string,
+    trackId: string,
+  ) => Promise<void>;
   fetchPlaylistTracks: (playlistId: string) => Promise<PlaylistTrack[]>;
 
   fetchFavorites: () => Promise<void>;
@@ -102,10 +108,10 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     }
   },
 
-  deletePlaylist: async (id) => {
+  deletePlaylist: async id => {
     try {
       await api.delete(`/playlists/${id}`);
-      set({ playlists: get().playlists.filter((p) => p.id !== id) });
+      set({ playlists: get().playlists.filter(p => p.id !== id) });
     } catch (err) {
       console.error('Failed to delete playlist:', err);
     }
@@ -122,7 +128,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
       });
       // Update track count locally
       set({
-        playlists: get().playlists.map((p) =>
+        playlists: get().playlists.map(p =>
           p.id === playlistId ? { ...p, track_count: p.track_count + 1 } : p,
         ),
       });
@@ -135,8 +141,10 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     try {
       await api.delete(`/playlists/${playlistId}/tracks/${trackId}`);
       set({
-        playlists: get().playlists.map((p) =>
-          p.id === playlistId ? { ...p, track_count: Math.max(0, p.track_count - 1) } : p,
+        playlists: get().playlists.map(p =>
+          p.id === playlistId
+            ? { ...p, track_count: Math.max(0, p.track_count - 1) }
+            : p,
         ),
       });
     } catch (err) {
@@ -144,7 +152,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     }
   },
 
-  fetchPlaylistTracks: async (playlistId) => {
+  fetchPlaylistTracks: async playlistId => {
     try {
       const { data } = await api.get(`/playlists/${playlistId}`);
       return data.tracks || [];
@@ -168,13 +176,13 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     }
   },
 
-  toggleFavorite: async (track) => {
+  toggleFavorite: async track => {
     const { favorites } = get();
-    const existing = favorites.find((f) => f.video_id === track.videoId);
+    const existing = favorites.find(f => f.video_id === track.videoId);
 
     if (existing) {
       // Remove
-      set({ favorites: favorites.filter((f) => f.video_id !== track.videoId) });
+      set({ favorites: favorites.filter(f => f.video_id !== track.videoId) });
       try {
         await api.delete(`/library/favorites/${track.videoId}`);
       } catch (err) {
@@ -204,14 +212,16 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
         });
       } catch (err) {
         // Revert on failure
-        set({ favorites: get().favorites.filter((f) => f.video_id !== track.videoId) });
+        set({
+          favorites: get().favorites.filter(f => f.video_id !== track.videoId),
+        });
         console.error('Failed to add favorite:', err);
       }
     }
   },
 
-  isFavorite: (videoId) => {
-    return get().favorites.some((f) => f.video_id === videoId);
+  isFavorite: videoId => {
+    return get().favorites.some(f => f.video_id === videoId);
   },
 
   // ─── History ───────────────────────────────────────────────

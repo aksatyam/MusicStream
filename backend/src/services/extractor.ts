@@ -149,8 +149,8 @@ class ExtractorOrchestrator {
         let metadata: TrackMetadata;
         if (ext.name === 'invidious') {
           const { data } = await ext.client.get(`/api/v1/videos/${videoId}`);
-          const audioFormats = (data.adaptiveFormats || []).filter(
-            (f: any) => f.type?.startsWith('audio/'),
+          const audioFormats = (data.adaptiveFormats || []).filter((f: any) =>
+            f.type?.startsWith('audio/'),
           );
           metadata = {
             videoId: data.videoId,
@@ -263,7 +263,7 @@ class ExtractorOrchestrator {
 
   getStatus(): { name: string; isOpen: boolean; failureCount: number }[] {
     return [
-      ...this.extractors.map((ext) => ({
+      ...this.extractors.map(ext => ({
         name: ext.name,
         isOpen: ext.isOpen,
         failureCount: ext.failureCount,

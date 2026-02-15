@@ -3,12 +3,9 @@ import { extractorOrchestrator } from '../services/extractor.js';
 import { cache } from '../services/cache.js';
 import { isHealthy as isDbHealthy } from '../services/db.js';
 
-export const healthRoutes: FastifyPluginAsync = async (app) => {
+export const healthRoutes: FastifyPluginAsync = async app => {
   app.get('/health', async (_request, reply) => {
-    const [redisHealthy, dbHealthy] = await Promise.all([
-      cache.isHealthy(),
-      isDbHealthy(),
-    ]);
+    const [redisHealthy, dbHealthy] = await Promise.all([cache.isHealthy(), isDbHealthy()]);
     return reply.send({
       status: 'ok',
       timestamp: new Date().toISOString(),

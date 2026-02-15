@@ -32,7 +32,10 @@ export default function LoginScreen() {
     try {
       await login({ email, password });
     } catch (err: any) {
-      Alert.alert('Login Failed', err.response?.data?.error || 'Something went wrong');
+      Alert.alert(
+        'Login Failed',
+        err.response?.data?.error || 'Something went wrong',
+      );
     } finally {
       setLoading(false);
     }
@@ -41,7 +44,8 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <View style={styles.content}>
         <Text style={styles.logo}>MusicStream</Text>
         <Text style={styles.subtitle}>Sign in to your account</Text>
@@ -70,8 +74,11 @@ export default function LoginScreen() {
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleLogin}
-          disabled={loading}>
-          <Text style={styles.buttonText}>{loading ? 'Signing in...' : 'Sign In'}</Text>
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? 'Signing in...' : 'Sign In'}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>

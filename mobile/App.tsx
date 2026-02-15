@@ -14,7 +14,7 @@ function App() {
   useEffect(() => {
     useAuthStore.getState().hydrate();
 
-    setupPlayer().then((isSetup) => {
+    setupPlayer().then(isSetup => {
       usePlayerStore.getState().setPlayerReady(isSetup);
     });
   }, []);

@@ -12,7 +12,7 @@ declare module 'fastify' {
   }
 }
 
-const authPlugin: FastifyPluginAsync = async (app) => {
+const authPlugin: FastifyPluginAsync = async app => {
   app.decorateRequest('userId', undefined);
   app.decorateRequest('userEmail', undefined);
 

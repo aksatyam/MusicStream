@@ -1,5 +1,11 @@
 import React, { useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
 import { usePlayerStore } from '../stores/player';
 import TrackCard from './TrackCard';
 import { colors, spacing, typography, borderRadius } from '../theme';
@@ -42,7 +48,7 @@ export default function QueueView({ onTrackPress }: QueueViewProps) {
 
       <FlatList
         data={queue}
-        keyExtractor={(item) => item.videoId}
+        keyExtractor={item => item.videoId}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
       />

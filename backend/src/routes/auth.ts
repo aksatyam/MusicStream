@@ -17,7 +17,7 @@ const refreshSchema = z.object({
   refreshToken: z.string(),
 });
 
-export const authRoutes: FastifyPluginAsync = async (app) => {
+export const authRoutes: FastifyPluginAsync = async app => {
   app.post('/register', async (request, reply) => {
     const body = registerSchema.safeParse(request.body);
     if (!body.success) {
@@ -25,7 +25,11 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     }
 
     try {
-      const result = await authService.register(body.data.email, body.data.password, body.data.displayName);
+      const result = await authService.register(
+        body.data.email,
+        body.data.password,
+        body.data.displayName,
+      );
       return reply.status(201).send(result);
     } catch (err) {
       if (err instanceof authService.AuthError) {

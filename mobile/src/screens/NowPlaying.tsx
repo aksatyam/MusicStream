@@ -15,7 +15,14 @@ import { usePlayerStore } from '../stores/player';
 import { useLibraryStore } from '../stores/library';
 import QueueView from '../components/QueueView';
 import AddToPlaylistSheet from '../components/AddToPlaylistSheet';
-import { colors, spacing, typography, borderRadius, shadows, iconSizes } from '../theme';
+import {
+  colors,
+  spacing,
+  typography,
+  borderRadius,
+  shadows,
+  iconSizes,
+} from '../theme';
 import type { TrackMeta } from '../types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -33,8 +40,14 @@ interface NowPlayingProps {
 }
 
 export default function NowPlayingScreen({ onClose }: NowPlayingProps) {
-  const { currentTrack, isPlaying, togglePlayPause, playNext, playPrevious, playTrack } =
-    usePlayerStore();
+  const {
+    currentTrack,
+    isPlaying,
+    togglePlayPause,
+    playNext,
+    playPrevious,
+    playTrack,
+  } = usePlayerStore();
   const { isFavorite, toggleFavorite } = useLibraryStore();
   const progress = useProgress(1000);
   const [isSeeking, setIsSeeking] = useState(false);
@@ -59,13 +72,25 @@ export default function NowPlayingScreen({ onClose }: NowPlayingProps) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => setShowQueue(false)} style={styles.closeButton}>
-            <Ionicons name="chevron-back" size={iconSizes.md} color={colors.text} />
+          <TouchableOpacity
+            onPress={() => setShowQueue(false)}
+            style={styles.closeButton}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={iconSizes.md}
+              color={colors.text}
+            />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>QUEUE</Text>
           <View style={styles.closeButton} />
         </View>
-        <QueueView onTrackPress={(track) => { playTrack(track); setShowQueue(false); }} />
+        <QueueView
+          onTrackPress={track => {
+            playTrack(track);
+            setShowQueue(false);
+          }}
+        />
       </SafeAreaView>
     );
   }
@@ -74,16 +99,26 @@ export default function NowPlayingScreen({ onClose }: NowPlayingProps) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-          <Ionicons name="chevron-down" size={iconSizes.md} color={colors.text} />
+          <Ionicons
+            name="chevron-down"
+            size={iconSizes.md}
+            color={colors.text}
+          />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>NOW PLAYING</Text>
-        <TouchableOpacity onPress={() => setShowQueue(true)} style={styles.closeButton}>
+        <TouchableOpacity
+          onPress={() => setShowQueue(true)}
+          style={styles.closeButton}
+        >
           <Ionicons name="list" size={iconSizes.md} color={colors.text} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.artworkContainer}>
-        <Image source={{ uri: currentTrack.thumbnail }} style={styles.artwork} />
+        <Image
+          source={{ uri: currentTrack.thumbnail }}
+          style={styles.artwork}
+        />
       </View>
 
       <View style={styles.trackInfo}>
@@ -98,11 +133,18 @@ export default function NowPlayingScreen({ onClose }: NowPlayingProps) {
           </View>
           <TouchableOpacity
             onPress={() => toggleFavorite(currentTrack)}
-            style={styles.heartBtn}>
+            style={styles.heartBtn}
+          >
             <Ionicons
-              name={isFavorite(currentTrack.videoId) ? 'heart' : 'heart-outline'}
+              name={
+                isFavorite(currentTrack.videoId) ? 'heart' : 'heart-outline'
+              }
               size={26}
-              color={isFavorite(currentTrack.videoId) ? colors.primary : colors.textSecondary}
+              color={
+                isFavorite(currentTrack.videoId)
+                  ? colors.primary
+                  : colors.textSecondary
+              }
             />
           </TouchableOpacity>
         </View>
@@ -130,7 +172,8 @@ export default function NowPlayingScreen({ onClose }: NowPlayingProps) {
       <View style={styles.controls}>
         <TouchableOpacity
           onPress={() => setIsShuffleOn(!isShuffleOn)}
-          style={styles.secondaryControlBtn}>
+          style={styles.secondaryControlBtn}
+        >
           <Ionicons
             name="shuffle-outline"
             size={iconSizes.md}
@@ -139,7 +182,11 @@ export default function NowPlayingScreen({ onClose }: NowPlayingProps) {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={playPrevious} style={styles.controlBtn}>
-          <Ionicons name="play-skip-back" size={iconSizes.xl} color={colors.text} />
+          <Ionicons
+            name="play-skip-back"
+            size={iconSizes.xl}
+            color={colors.text}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity onPress={togglePlayPause} style={styles.playButton}>
@@ -151,12 +198,17 @@ export default function NowPlayingScreen({ onClose }: NowPlayingProps) {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={playNext} style={styles.controlBtn}>
-          <Ionicons name="play-skip-forward" size={iconSizes.xl} color={colors.text} />
+          <Ionicons
+            name="play-skip-forward"
+            size={iconSizes.xl}
+            color={colors.text}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => setIsRepeatOn(!isRepeatOn)}
-          style={styles.secondaryControlBtn}>
+          style={styles.secondaryControlBtn}
+        >
           <Ionicons
             name="repeat-outline"
             size={iconSizes.md}
@@ -169,8 +221,13 @@ export default function NowPlayingScreen({ onClose }: NowPlayingProps) {
       <View style={styles.actionsRow}>
         <TouchableOpacity
           onPress={() => setShowAddToPlaylist(true)}
-          style={styles.actionBtn}>
-          <Ionicons name="add-circle-outline" size={iconSizes.md} color={colors.textSecondary} />
+          style={styles.actionBtn}
+        >
+          <Ionicons
+            name="add-circle-outline"
+            size={iconSizes.md}
+            color={colors.textSecondary}
+          />
           <Text style={styles.actionLabel}>Add to Playlist</Text>
         </TouchableOpacity>
       </View>

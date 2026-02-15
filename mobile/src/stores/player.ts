@@ -47,13 +47,15 @@ async function resolveStreamUrl(videoId: string): Promise<ResolvedStream> {
     // Prefer MP4/AAC (m4a), fall back to any non-opus stream, then first available
     selected =
       streams.find((s: any) => s.mimeType?.includes('mp4')) ||
-      streams.find((s: any) => !s.mimeType?.includes('opus') && !s.mimeType?.includes('webm')) ||
+      streams.find(
+        (s: any) =>
+          !s.mimeType?.includes('opus') && !s.mimeType?.includes('webm'),
+      ) ||
       streams[0];
   } else {
     // Android: prefer OPUS for better quality at lower bitrate
     selected =
-      streams.find((s: any) => s.mimeType?.includes('opus')) ||
-      streams[0];
+      streams.find((s: any) => s.mimeType?.includes('opus')) || streams[0];
   }
 
   if (!selected?.url) throw new Error('No audio stream available');
@@ -71,9 +73,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   isLoading: false,
   isPlayerReady: false,
 
-  setPlayerReady: (ready) => set({ isPlayerReady: ready }),
+  setPlayerReady: ready => set({ isPlayerReady: ready }),
 
-  playTrack: async (track) => {
+  playTrack: async track => {
     set({ isLoading: true, currentTrack: track });
 
     try {
@@ -92,7 +94,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
       // Add to queue if not already present
       const { queue } = get();
-      const exists = queue.some((t) => t.videoId === track.videoId);
+      const exists = queue.some(t => t.videoId === track.videoId);
       if (!exists) {
         set({ queue: [...queue, track] });
       }
@@ -104,9 +106,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     }
   },
 
-  addToQueue: async (track) => {
+  addToQueue: async track => {
     const { queue } = get();
-    const exists = queue.some((t) => t.videoId === track.videoId);
+    const exists = queue.some(t => t.videoId === track.videoId);
     if (exists) return;
 
     try {
@@ -152,11 +154,11 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     }
   },
 
-  seekTo: async (position) => {
+  seekTo: async position => {
     await TrackPlayer.seekTo(position);
   },
 
-  setIsPlaying: (playing) => set({ isPlaying: playing }),
+  setIsPlaying: playing => set({ isPlaying: playing }),
 
   clearQueue: async () => {
     await TrackPlayer.reset();

@@ -36,14 +36,38 @@ export const spacing = {
 } as const;
 
 export const typography = {
-  h1: { fontSize: 28, fontWeight: '700' as const, color: colors.text, letterSpacing: -0.5 },
-  h2: { fontSize: 22, fontWeight: '600' as const, color: colors.text, letterSpacing: -0.3 },
+  h1: {
+    fontSize: 28,
+    fontWeight: '700' as const,
+    color: colors.text,
+    letterSpacing: -0.5,
+  },
+  h2: {
+    fontSize: 22,
+    fontWeight: '600' as const,
+    color: colors.text,
+    letterSpacing: -0.3,
+  },
   h3: { fontSize: 18, fontWeight: '600' as const, color: colors.text },
   body: { fontSize: 14, fontWeight: '400' as const, color: colors.text },
-  bodySmall: { fontSize: 12, fontWeight: '400' as const, color: colors.textSecondary },
-  caption: { fontSize: 10, fontWeight: '400' as const, color: colors.textMuted },
+  bodySmall: {
+    fontSize: 12,
+    fontWeight: '400' as const,
+    color: colors.textSecondary,
+  },
+  caption: {
+    fontSize: 10,
+    fontWeight: '400' as const,
+    color: colors.textMuted,
+  },
   button: { fontSize: 16, fontWeight: '600' as const, color: colors.text },
-  label: { fontSize: 11, fontWeight: '500' as const, color: colors.textSecondary, textTransform: 'uppercase' as const, letterSpacing: 1 },
+  label: {
+    fontSize: 11,
+    fontWeight: '500' as const,
+    color: colors.textSecondary,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 1,
+  },
 } as const;
 
 export const borderRadius = {

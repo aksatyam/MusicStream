@@ -28,7 +28,7 @@ function getGreeting(): string {
 }
 
 export default function HomeScreen() {
-  const user = useAuthStore((s) => s.user);
+  const user = useAuthStore(s => s.user);
   const { playTrack, currentTrack } = usePlayerStore();
   const { history, fetchHistory } = useLibraryStore();
   const [trending, setTrending] = useState<TrackMeta[]>([]);
@@ -75,16 +75,13 @@ export default function HomeScreen() {
     [playTrack],
   );
 
-  const handleTrackLongPress = useCallback(
-    (track: TrackMeta) => {
-      setSelectedTrack(track);
-      setShowPlaylistSheet(true);
-    },
-    [],
-  );
+  const handleTrackLongPress = useCallback((track: TrackMeta) => {
+    setSelectedTrack(track);
+    setShowPlaylistSheet(true);
+  }, []);
 
   // Convert history entries to TrackMeta
-  const recentTracks: TrackMeta[] = history.slice(0, 10).map((h) => ({
+  const recentTracks: TrackMeta[] = history.slice(0, 10).map(h => ({
     videoId: h.video_id,
     title: h.title,
     artist: h.artist || 'Unknown Artist',
@@ -102,14 +99,19 @@ export default function HomeScreen() {
             tintColor={colors.primary}
           />
         }
-        contentContainerStyle={styles.scrollContent}>
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.header}>
           <View style={styles.headerTextContainer}>
             <Text style={styles.greeting}>{getGreeting()}</Text>
             <Text style={styles.name}>{user?.displayName}</Text>
           </View>
           <TouchableOpacity style={styles.notificationBtn}>
-            <Ionicons name="notifications-outline" size={iconSizes.md} color={colors.text} />
+            <Ionicons
+              name="notifications-outline"
+              size={iconSizes.md}
+              color={colors.text}
+            />
           </TouchableOpacity>
         </View>
 
@@ -122,19 +124,25 @@ export default function HomeScreen() {
           <>
             <View style={styles.section}>
               <View style={styles.sectionTitleRow}>
-                <Ionicons name="trending-up" size={iconSizes.sm} color={colors.primary} />
+                <Ionicons
+                  name="trending-up"
+                  size={iconSizes.sm}
+                  color={colors.primary}
+                />
                 <Text style={styles.sectionTitle}>Trending</Text>
               </View>
               {trending.length > 0 ? (
-                trending.slice(0, 20).map((track) => (
-                  <TrackCard
-                    key={track.videoId}
-                    track={track}
-                    onPress={handleTrackPress}
-                    onLongPress={handleTrackLongPress}
-                    isPlaying={currentTrack?.videoId === track.videoId}
-                  />
-                ))
+                trending
+                  .slice(0, 20)
+                  .map(track => (
+                    <TrackCard
+                      key={track.videoId}
+                      track={track}
+                      onPress={handleTrackPress}
+                      onLongPress={handleTrackLongPress}
+                      isPlaying={currentTrack?.videoId === track.videoId}
+                    />
+                  ))
               ) : (
                 <Text style={styles.placeholder}>
                   Trending tracks will appear here
@@ -144,11 +152,15 @@ export default function HomeScreen() {
 
             <View style={styles.section}>
               <View style={styles.sectionTitleRow}>
-                <Ionicons name="time-outline" size={iconSizes.sm} color={colors.primary} />
+                <Ionicons
+                  name="time-outline"
+                  size={iconSizes.sm}
+                  color={colors.primary}
+                />
                 <Text style={styles.sectionTitle}>Recently Played</Text>
               </View>
               {recentTracks.length > 0 ? (
-                recentTracks.map((track) => (
+                recentTracks.map(track => (
                   <TrackCard
                     key={`history-${track.videoId}`}
                     track={track}
