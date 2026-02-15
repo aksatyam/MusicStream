@@ -1,0 +1,215 @@
+# MusicStream - Local Development Environment
+# Mirrors the AWS infrastructure locally using Docker
+# Run: docker compose up -d
+
+services:
+  # ─── PostgreSQL (mirrors RDS) ──────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: musicstream-postgres
+    environment:
+      POSTGRES_DB: musicstream
+      POSTGRES_USER: musicstream
+      POSTGRES_PASSWORD: localdev123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U musicstream"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Redis (mirrors ElastiCache) ───────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: musicstream-redis
+    command: redis-server --maxmemory-policy allkeys-lru --maxmemory 128mb
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Invidious (primary extractor) ─────────────────────────
+  # Note: Official image doesn't support ARM64. On Apple Silicon,
+  # we build from source. On x86, use quay.io/invidious/invidious:latest
+  invidious:
+    build:
+      context: ./docker/invidious
+      dockerfile: Dockerfile
+    container_name: musicstream-invidious
+    environment:
+      INVIDIOUS_CONFIG: |
+        database_url: postgres://musicstream:localdev123@invidious-db:5432/invidious
+        check_tables: true
+        port: 3001
+        external_port: 3001
+        host_binding: 0.0.0.0
+        admins: []
+        disable_proxy: false
+        popular_enabled: true
+        statistics_enabled: true
+        hmac_key: musicstream_dev_hmac_key
+    ports:
+      - "3001:3001"
+    depends_on:
+      invidious-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/v1/stats || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    restart: unless-stopped
+    profiles:
+      - extractors
+
+  # Separate Postgres for Invidious
+  invidious-db:
+    image: postgres:16-alpine
+    container_name: musicstream-invidious-db
+    environment:
+      POSTGRES_DB: invidious
+      POSTGRES_USER: musicstream
+      POSTGRES_PASSWORD: localdev123
+    volumes:
+      - invidious_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U musicstream -d invidious"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - extractors
+
+  # ─── Piped Backend (secondary extractor) ───────────────────
+  piped:
+    image: 1337kavin/piped:latest
+    platform: linux/amd64
+    container_name: musicstream-piped
+    environment:
+      PORT: "3002"
+    ports:
+      - "3002:3002"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3002/healthcheck || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+    profiles:
+      - extractors
+
+  # ─── Piped Proxy ───────────────────────────────────────────
+  piped-proxy:
+    image: 1337kavin/piped-proxy:latest
+    platform: linux/amd64
+    container_name: musicstream-piped-proxy
+    ports:
+      - "3003:3003"
+    restart: unless-stopped
+    profiles:
+      - extractors
+
+  # ─── MusicStream API Server ────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: musicstream-api
+    environment:
+      NODE_ENV: development
+      PORT: "3000"
+      DATABASE_URL: postgresql://musicstream:localdev123@postgres:5432/musicstream
+      REDIS_URL: redis://redis:6379
+      INVIDIOUS_URL: http://invidious:3001
+      PIPED_URL: http://piped:3002
+      NEWPIPE_URL: http://newpipe-extractor:3004
+      JWT_SECRET: musicstream_dev_jwt_secret_key_change_in_production
+      S3_BUCKET: musicstream-dev-assets
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/package.json:/app/package.json
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  # ─── MinIO (local S3 replacement) ──────────────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: musicstream-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ─── Prometheus (monitoring) ───────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: musicstream-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ─── Grafana (dashboards) ──────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: musicstream-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3005:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  postgres_data:
+  redis_data:
+  invidious_db_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:
