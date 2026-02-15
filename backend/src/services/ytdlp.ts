@@ -3,6 +3,26 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 
+interface YtDlpFormat {
+  url: string;
+  acodec?: string;
+  vcodec?: string;
+  abr?: number;
+  ext?: string;
+  format_note?: string;
+}
+
+interface YtDlpVideoJson {
+  id: string;
+  title?: string;
+  channel?: string;
+  uploader?: string;
+  duration?: number;
+  thumbnails?: { url: string }[];
+  formats?: YtDlpFormat[];
+  _type?: string;
+}
+
 interface YtDlpSearchResult {
   videoId: string;
   title: string;
@@ -79,15 +99,15 @@ export async function ytdlpGetStreams(videoId: string): Promise<YtDlpStreamResul
     { maxBuffer: 10 * 1024 * 1024, timeout: 30_000 },
   );
 
-  const data = JSON.parse(stdout.trim());
+  const data: YtDlpVideoJson = JSON.parse(stdout.trim());
 
   // Filter audio-only formats
   const audioFormats = (data.formats || []).filter(
-    (f: any) => f.acodec && f.acodec !== 'none' && (!f.vcodec || f.vcodec === 'none'),
+    (f: YtDlpFormat) => f.acodec && f.acodec !== 'none' && (!f.vcodec || f.vcodec === 'none'),
   );
 
   // Sort: MP4/AAC first (iOS compatible), then by bitrate descending
-  audioFormats.sort((a: any, b: any) => {
+  audioFormats.sort((a: YtDlpFormat, b: YtDlpFormat) => {
     const aIsMP4 = a.acodec?.includes('mp4a') ? 1 : 0;
     const bIsMP4 = b.acodec?.includes('mp4a') ? 1 : 0;
     if (bIsMP4 !== aIsMP4) return bIsMP4 - aIsMP4; // MP4 first
@@ -101,7 +121,7 @@ export async function ytdlpGetStreams(videoId: string): Promise<YtDlpStreamResul
     duration: Math.round(data.duration || 0),
     thumbnail:
       data.thumbnails?.slice(-1)[0]?.url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-    audioStreams: audioFormats.map((f: any) => ({
+    audioStreams: audioFormats.map((f: YtDlpFormat) => ({
       url: f.url,
       mimeType: f.acodec?.includes('mp4a')
         ? 'audio/mp4; codecs="mp4a.40.2"'

@@ -12,14 +12,14 @@ pool.on('error', err => {
   console.error('Unexpected PG pool error:', err.message);
 });
 
-export async function query<T extends pg.QueryResultRow = any>(
+export async function query<T extends pg.QueryResultRow = Record<string, unknown>>(
   text: string,
   params?: unknown[],
 ): Promise<pg.QueryResult<T>> {
   return pool.query<T>(text, params);
 }
 
-export async function getOne<T extends pg.QueryResultRow = any>(
+export async function getOne<T extends pg.QueryResultRow = Record<string, unknown>>(
   text: string,
   params?: unknown[],
 ): Promise<T | null> {

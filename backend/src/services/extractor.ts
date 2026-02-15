@@ -28,6 +28,67 @@ interface SearchResult {
   thumbnail: string;
 }
 
+interface InvidiousSearchItem {
+  videoId: string;
+  title: string;
+  author: string;
+  lengthSeconds: number;
+  videoThumbnails?: { url: string }[];
+}
+
+interface InvidiousVideoData {
+  videoId: string;
+  title: string;
+  author: string;
+  lengthSeconds: number;
+  videoThumbnails?: { url: string }[];
+  adaptiveFormats?: InvidiousFormat[];
+}
+
+interface InvidiousFormat {
+  type?: string;
+  url: string;
+  bitrate: number;
+  encoding: string;
+  qualityLabel?: string;
+}
+
+interface PipedSearchData {
+  items?: PipedSearchItem[];
+}
+
+interface PipedSearchItem {
+  url?: string;
+  title: string;
+  uploaderName: string;
+  duration: number;
+  thumbnail?: string;
+}
+
+interface PipedStreamData {
+  title: string;
+  uploader: string;
+  duration: number;
+  thumbnailUrl?: string;
+  audioStreams?: PipedAudioStream[];
+}
+
+interface PipedAudioStream {
+  url: string;
+  mimeType: string;
+  bitrate: number;
+  codec: string;
+  quality?: string;
+}
+
+interface PipedTrendingItem {
+  url?: string;
+  title: string;
+  uploaderName: string;
+  duration: number;
+  thumbnail?: string;
+}
+
 interface Extractor {
   name: string;
   client: AxiosInstance;
@@ -96,10 +157,10 @@ class ExtractorOrchestrator {
       try {
         let results: SearchResult[];
         if (ext.name === 'invidious') {
-          const { data } = await ext.client.get('/api/v1/search', {
+          const { data } = await ext.client.get<InvidiousSearchItem[]>('/api/v1/search', {
             params: { q: query, page, type: 'video', sort_by: 'relevance' },
           });
-          results = data.map((item: any) => ({
+          results = data.map(item => ({
             videoId: item.videoId,
             title: item.title,
             artist: item.author,
@@ -107,10 +168,10 @@ class ExtractorOrchestrator {
             thumbnail: item.videoThumbnails?.[0]?.url || '',
           }));
         } else {
-          const { data } = await ext.client.get('/search', {
+          const { data } = await ext.client.get<PipedSearchData>('/search', {
             params: { q: query, filter: 'music_songs' },
           });
-          results = (data.items || []).map((item: any) => ({
+          results = (data.items || []).map(item => ({
             videoId: item.url?.replace('/watch?v=', '') || '',
             title: item.title,
             artist: item.uploaderName,
@@ -148,8 +209,8 @@ class ExtractorOrchestrator {
       try {
         let metadata: TrackMetadata;
         if (ext.name === 'invidious') {
-          const { data } = await ext.client.get(`/api/v1/videos/${videoId}`);
-          const audioFormats = (data.adaptiveFormats || []).filter((f: any) =>
+          const { data } = await ext.client.get<InvidiousVideoData>(`/api/v1/videos/${videoId}`);
+          const audioFormats = (data.adaptiveFormats || []).filter(f =>
             f.type?.startsWith('audio/'),
           );
           metadata = {
@@ -158,23 +219,23 @@ class ExtractorOrchestrator {
             artist: data.author,
             duration: data.lengthSeconds,
             thumbnail: data.videoThumbnails?.[0]?.url || '',
-            audioStreams: audioFormats.map((f: any) => ({
+            audioStreams: audioFormats.map(f => ({
               url: f.url,
-              mimeType: f.type,
+              mimeType: f.type || '',
               bitrate: f.bitrate,
               codec: f.encoding,
               quality: f.qualityLabel || `${Math.round(f.bitrate / 1000)}kbps`,
             })),
           };
         } else {
-          const { data } = await ext.client.get(`/streams/${videoId}`);
+          const { data } = await ext.client.get<PipedStreamData>(`/streams/${videoId}`);
           metadata = {
             videoId,
             title: data.title,
             artist: data.uploader,
             duration: data.duration,
             thumbnail: data.thumbnailUrl || '',
-            audioStreams: (data.audioStreams || []).map((s: any) => ({
+            audioStreams: (data.audioStreams || []).map(s => ({
               url: s.url,
               mimeType: s.mimeType,
               bitrate: s.bitrate,
@@ -229,14 +290,14 @@ class ExtractorOrchestrator {
       if (this.isCircuitOpen(ext)) continue;
       try {
         if (ext.name === 'piped') {
-          const { data } = await ext.client.get('/trending', {
+          const { data } = await ext.client.get<PipedTrendingItem[]>('/trending', {
             params: { region: 'IN' },
           });
           this.recordSuccess(ext);
           const results = (data || [])
-            .filter((item: any) => item.duration > 0)
+            .filter(item => item.duration > 0)
             .slice(0, 20)
-            .map((item: any) => ({
+            .map(item => ({
               videoId: item.url?.replace('/watch?v=', '') || '',
               title: item.title,
               artist: item.uploaderName,
