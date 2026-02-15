@@ -16,6 +16,13 @@ jest.mock('../../src/services/cache', () => ({
   CACHE_TTL: { SEARCH: 21600, STREAM: 1800, METADATA: 86400, TRENDING: 3600, SUGGESTIONS: 3600 },
 }));
 
+// Mock yt-dlp fallback
+jest.mock('../../src/services/ytdlp', () => ({
+  ytdlpSearch: jest.fn().mockRejectedValue(new Error('yt-dlp unavailable')),
+  ytdlpGetStreams: jest.fn().mockRejectedValue(new Error('yt-dlp unavailable')),
+  ytdlpGetTrending: jest.fn().mockRejectedValue(new Error('yt-dlp unavailable')),
+}));
+
 // Use a getter to access the shared mock after jest.mock hoisting
 const mockAxiosGet = jest.fn();
 jest.mock('axios', () => {

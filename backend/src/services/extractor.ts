@@ -122,7 +122,7 @@ class ExtractorOrchestrator {
         this.recordSuccess(ext);
         await cache.set(cacheKey, results, CACHE_TTL.SEARCH);
         return results;
-      } catch (err) {
+      } catch (_err) {
         this.recordFailure(ext);
       }
     }
@@ -132,7 +132,7 @@ class ExtractorOrchestrator {
       const results = await ytdlpSearch(query, 20);
       await cache.set(cacheKey, results, CACHE_TTL.SEARCH);
       return results;
-    } catch (err) {
+    } catch (_err) {
       throw new Error('All extractors (including yt-dlp) failed for search');
     }
   }
@@ -187,7 +187,7 @@ class ExtractorOrchestrator {
         this.recordSuccess(ext);
         await cache.set(cacheKey, metadata, CACHE_TTL.STREAM);
         return metadata;
-      } catch (err) {
+      } catch (_err) {
         this.recordFailure(ext);
       }
     }
@@ -197,7 +197,7 @@ class ExtractorOrchestrator {
       const metadata = await ytdlpGetStreams(videoId);
       await cache.set(cacheKey, metadata, CACHE_TTL.STREAM);
       return metadata;
-    } catch (err) {
+    } catch (_err) {
       throw new Error('All extractors (including yt-dlp) failed for streams');
     }
   }

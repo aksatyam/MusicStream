@@ -21,6 +21,13 @@ jest.mock('../../src/services/cache', () => ({
   },
 }));
 
+// Mock yt-dlp fallback
+jest.mock('../../src/services/ytdlp', () => ({
+  ytdlpSearch: jest.fn().mockRejectedValue(new Error('yt-dlp unavailable')),
+  ytdlpGetStreams: jest.fn().mockRejectedValue(new Error('yt-dlp unavailable')),
+  ytdlpGetTrending: jest.fn().mockRejectedValue(new Error('yt-dlp unavailable')),
+}));
+
 // Use closure-based mock to avoid hoisting issues
 const mockAxiosGet = jest.fn();
 jest.mock('axios', () => {
@@ -110,7 +117,7 @@ describe('ExtractorOrchestrator', () => {
       mockAxiosGet.mockRejectedValueOnce(new Error('Piped down'));
 
       await expect(extractorOrchestrator.search('failing query')).rejects.toThrow(
-        'All extractors failed for search',
+        'All extractors (including yt-dlp) failed for search',
       );
     });
   });
@@ -148,7 +155,7 @@ describe('ExtractorOrchestrator', () => {
       mockAxiosGet.mockRejectedValueOnce(new Error('fail'));
 
       await expect(extractorOrchestrator.getStreams('bad-id')).rejects.toThrow(
-        'All extractors failed for streams',
+        'All extractors (including yt-dlp) failed for streams',
       );
     });
   });
@@ -156,7 +163,7 @@ describe('ExtractorOrchestrator', () => {
   describe('getStatus', () => {
     it('should return status for all extractors', () => {
       const status = extractorOrchestrator.getStatus();
-      expect(status).toHaveLength(2);
+      expect(status).toHaveLength(3);
       expect(status[0]).toHaveProperty('name');
       expect(status[0]).toHaveProperty('isOpen');
       expect(status[0]).toHaveProperty('failureCount');

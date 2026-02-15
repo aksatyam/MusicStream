@@ -3,7 +3,7 @@ import { extractorOrchestrator } from '../services/extractor.js';
 
 export const searchRoutes: FastifyPluginAsync = async app => {
   app.get('/search', async (request, reply) => {
-    const { q, sort, page } = request.query as { q?: string; sort?: string; page?: string };
+    const { q, page } = request.query as { q?: string; sort?: string; page?: string };
 
     if (!q || q.trim().length === 0) {
       return reply.status(400).send({ error: 'Query parameter "q" is required' });

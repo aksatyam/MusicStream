@@ -23,7 +23,7 @@ jest.mock('../../src/config/env', () => ({
 import {
   register,
   login,
-  refresh,
+  refresh as _refresh,
   verifyToken,
   getUserById,
   AuthError,

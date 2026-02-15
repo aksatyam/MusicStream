@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "lint": "eslint src/",
+    "lint": "eslint src/ test/",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "test": "jest --passWithNoTests",
@@ -29,6 +29,7 @@
     "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/jest": "^29.5.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.0.0",
@@ -38,6 +39,7 @@
     "prettier": "^3.8.1",
     "ts-jest": "^29.2.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.55.0"
   }
 }
