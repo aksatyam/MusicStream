@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { writeFileSync, existsSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync, mkdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const execFileAsync = promisify(execFile);
@@ -9,17 +9,68 @@ const COOKIES_PATH = join(process.cwd(), 'data', 'cookies.txt');
 
 /**
  * Write YouTube cookies file from YOUTUBE_COOKIES env var (if set).
- * Call once at startup.
+ * Call once at startup. Logs diagnostics for debugging.
  */
 export function initYtDlpCookies(): void {
   const cookiesEnv = process.env.YOUTUBE_COOKIES;
-  if (cookiesEnv) {
+  if (!cookiesEnv) {
+    console.log('[yt-dlp] YOUTUBE_COOKIES env var not set — skipping cookie file');
+    return;
+  }
+
+  console.log(`[yt-dlp] YOUTUBE_COOKIES env var found (${cookiesEnv.length} chars)`);
+
+  // Ensure data/ directory exists
+  const dataDir = join(process.cwd(), 'data');
+  try {
+    if (!existsSync(dataDir)) {
+      mkdirSync(dataDir, { recursive: true });
+      console.log(`[yt-dlp] Created data directory: ${dataDir}`);
+    }
+  } catch (err) {
+    console.error(`[yt-dlp] Failed to create data dir: ${err}`);
+  }
+
+  try {
+    writeFileSync(COOKIES_PATH, cookiesEnv, { mode: 0o600 });
+    const stat = statSync(COOKIES_PATH);
+    console.log(`[yt-dlp] Cookies written to ${COOKIES_PATH} (${stat.size} bytes)`);
+
+    // Validate: check if file starts with expected header or cookie lines
+    const firstLine = readFileSync(COOKIES_PATH, 'utf8').split('\n')[0];
+    console.log(`[yt-dlp] Cookie file first line: "${firstLine.substring(0, 80)}..."`);
+  } catch (err) {
+    console.error(`[yt-dlp] Failed to write cookies file: ${err}`);
+  }
+}
+
+/** Return diagnostic info about cookies state */
+export function getCookieDiagnostics(): {
+  envVarSet: boolean;
+  envVarLength: number;
+  fileExists: boolean;
+  fileSize: number;
+  firstLine: string;
+} {
+  const cookiesEnv = process.env.YOUTUBE_COOKIES;
+  const fileExists = existsSync(COOKIES_PATH);
+  let fileSize = 0;
+  let firstLine = '';
+  if (fileExists) {
     try {
-      writeFileSync(COOKIES_PATH, cookiesEnv, { mode: 0o600 });
+      fileSize = statSync(COOKIES_PATH).size;
+      firstLine = readFileSync(COOKIES_PATH, 'utf8').split('\n')[0].substring(0, 80);
     } catch {
-      // data/ dir may not exist in dev
+      // ignore
     }
   }
+  return {
+    envVarSet: !!cookiesEnv,
+    envVarLength: cookiesEnv?.length || 0,
+    fileExists,
+    fileSize,
+    firstLine,
+  };
 }
 
 /** Return --cookies args if cookies file exists */

@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from 'fastify';
 import { extractorOrchestrator } from '../services/extractor.js';
 import { cache } from '../services/cache.js';
 import { isHealthy as isDbHealthy } from '../services/db.js';
+import { getCookieDiagnostics } from '../services/ytdlp.js';
 
 export const healthRoutes: FastifyPluginAsync = async app => {
   app.get('/health', async (_request, reply) => {
@@ -15,6 +16,7 @@ export const healthRoutes: FastifyPluginAsync = async app => {
         redis: redisHealthy ? 'connected' : 'disconnected',
       },
       extractors: extractorOrchestrator.getStatus(),
+      cookies: getCookieDiagnostics(),
     });
   });
 
