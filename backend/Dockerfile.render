@@ -20,7 +20,7 @@ WORKDIR /app
 # Install yt-dlp (local fallback extractor) + curl for health checks
 # Place yt-dlp in /app/bin so the node user can self-update it at startup
 RUN apk add --no-cache curl python3 ffmpeg \
-    && mkdir -p /app/bin \
+    && mkdir -p /app/bin /app/data \
     && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /app/bin/yt-dlp \
     && chmod a+rx /app/bin/yt-dlp
 ENV PATH="/app/bin:$PATH"
@@ -34,8 +34,8 @@ COPY --from=build /app/dist ./dist
 COPY migrations ./migrations
 COPY entrypoint.sh ./entrypoint.sh
 
-# Make bin dir writable by node user for yt-dlp self-update
-RUN chown -R node:node /app/bin
+# Make bin + data dirs writable by node user
+RUN chown -R node:node /app/bin /app/data
 
 # Render uses port 10000 by default
 ENV PORT=10000

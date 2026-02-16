@@ -1,7 +1,34 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { writeFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
 
 const execFileAsync = promisify(execFile);
+
+const COOKIES_PATH = join(process.cwd(), 'data', 'cookies.txt');
+
+/**
+ * Write YouTube cookies file from YOUTUBE_COOKIES env var (if set).
+ * Call once at startup.
+ */
+export function initYtDlpCookies(): void {
+  const cookiesEnv = process.env.YOUTUBE_COOKIES;
+  if (cookiesEnv) {
+    try {
+      writeFileSync(COOKIES_PATH, cookiesEnv, { mode: 0o600 });
+    } catch {
+      // data/ dir may not exist in dev
+    }
+  }
+}
+
+/** Return --cookies args if cookies file exists */
+function getCookieArgs(): string[] {
+  if (existsSync(COOKIES_PATH)) {
+    return ['--cookies', COOKIES_PATH];
+  }
+  return [];
+}
 
 interface YtDlpFormat {
   url: string;
@@ -59,6 +86,7 @@ export async function ytdlpSearch(query: string, limit: number = 20): Promise<Yt
       '--flat-playlist',
       '--no-warnings',
       '--skip-download',
+      ...getCookieArgs(),
     ],
     { maxBuffer: 10 * 1024 * 1024, timeout: 30_000 },
   );
@@ -103,7 +131,8 @@ export async function ytdlpGetStreams(videoId: string): Promise<YtDlpStreamResul
         '--no-warnings',
         '--skip-download',
         '--no-check-certificates',
-        '--extractor-args', 'youtube:player_client=ios,web',
+        '--extractor-args', 'youtube:player_client=mweb',
+        ...getCookieArgs(),
       ],
       { maxBuffer: 10 * 1024 * 1024, timeout: 60_000 },
     );
@@ -165,6 +194,7 @@ export async function ytdlpGetTrending(limit: number = 20): Promise<YtDlpSearchR
       '--skip-download',
       '--playlist-end',
       String(limit),
+      ...getCookieArgs(),
     ],
     { maxBuffer: 10 * 1024 * 1024, timeout: 30_000 },
   );

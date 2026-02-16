@@ -36,6 +36,8 @@ services:
         value: "http://localhost:3001"
       - key: PIPED_URL
         value: "http://localhost:3002"
+      - key: YOUTUBE_COOKIES
+        sync: false  # Set manually in Render dashboard (Netscape cookie format)
 
   # ─── Redis Cache ────────────────────────────────────────
   - type: redis

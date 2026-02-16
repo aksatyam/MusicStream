@@ -11,6 +11,7 @@ import { searchRoutes } from './routes/search.js';
 import { trackRoutes } from './routes/tracks.js';
 import { playlistRoutes } from './routes/playlists.js';
 import { runMigrations } from './services/db.js';
+import { initYtDlpCookies } from './services/ytdlp.js';
 
 const app = Fastify({
   logger: {
@@ -50,6 +51,9 @@ async function start() {
   } catch (err) {
     app.log.error(err, 'Migration failed — starting anyway');
   }
+
+  // Write YouTube cookies file from env var (if set)
+  initYtDlpCookies();
 
   // Connect to Redis
   await cache.connect();
