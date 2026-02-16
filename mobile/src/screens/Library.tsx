@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useAuthStore } from '../stores/auth';
 import { useLibraryStore } from '../stores/library';
 import { colors, spacing, typography, borderRadius, iconSizes } from '../theme';
 
@@ -20,6 +21,8 @@ interface LibraryScreenProps {
 }
 
 export default function LibraryScreen({ navigation }: LibraryScreenProps) {
+  const { isAuthenticated, isGuest, logout } = useAuthStore();
+
   const {
     playlists,
     favorites,
@@ -36,9 +39,11 @@ export default function LibraryScreen({ navigation }: LibraryScreenProps) {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    fetchPlaylists();
-    fetchFavorites();
-  }, [fetchPlaylists, fetchFavorites]);
+    if (!isGuest) {
+      fetchPlaylists();
+      fetchFavorites();
+    }
+  }, [isGuest, fetchPlaylists, fetchFavorites]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -136,6 +141,30 @@ export default function LibraryScreen({ navigation }: LibraryScreenProps) {
       <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
     </TouchableOpacity>
   );
+
+  if (isGuest) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Your Library</Text>
+        </View>
+        <View style={styles.guestContainer}>
+          <Ionicons
+            name="library-outline"
+            size={64}
+            color={colors.textMuted}
+          />
+          <Text style={styles.guestTitle}>Sign in to access your library</Text>
+          <Text style={styles.guestSubtitle}>
+            Create playlists, save favorites, and keep your listening history
+          </Text>
+          <TouchableOpacity style={styles.guestSignInBtn} onPress={logout}>
+            <Text style={styles.guestSignInText}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -236,6 +265,35 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingBottom: 80,
+  },
+  guestContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+  },
+  guestTitle: {
+    ...typography.h3,
+    marginTop: spacing.lg,
+    textAlign: 'center',
+  },
+  guestSubtitle: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: spacing.sm,
+    lineHeight: 22,
+  },
+  guestSignInBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl * 2,
+    marginTop: spacing.xl,
+  },
+  guestSignInText: {
+    ...typography.button,
+    color: '#FFFFFF',
   },
   likedCard: {
     flexDirection: 'row',

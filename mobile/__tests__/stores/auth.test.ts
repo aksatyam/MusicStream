@@ -8,6 +8,7 @@ describe('Auth Store', () => {
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
+      isGuest: false,
       isLoading: true,
     });
   });
@@ -92,6 +93,7 @@ describe('Auth Store', () => {
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
+      isGuest: false,
       isLoading: true,
     });
 

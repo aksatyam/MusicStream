@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
 });
 
 export default function Navigation() {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isGuest, isLoading } = useAuthStore();
 
   if (isLoading) {
     return (
@@ -204,9 +204,11 @@ export default function Navigation() {
     );
   }
 
+  const showMain = isAuthenticated || isGuest;
+
   return (
     <NavigationContainer theme={appTheme}>
-      {isAuthenticated ? <MainNavigator /> : <AuthNavigator />}
+      {showMain ? <MainNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }

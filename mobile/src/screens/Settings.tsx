@@ -23,6 +23,7 @@ import { colors, spacing, typography, borderRadius, iconSizes } from '../theme';
 
 export default function SettingsScreen() {
   const user = useAuthStore(s => s.user);
+  const isGuest = useAuthStore(s => s.isGuest);
   const queue = usePlayerStore(s => s.queue);
   const [downloadSize, setDownloadSize] = useState('0 B');
   const [extractorStatus, setExtractorStatus] = useState<string>('Checking...');
@@ -93,17 +94,29 @@ export default function SettingsScreen() {
         </View>
 
         {/* Profile */}
-        <View style={styles.profile}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {user?.displayName?.charAt(0).toUpperCase()}
-            </Text>
+        {isGuest ? (
+          <View style={styles.profile}>
+            <View style={[styles.avatar, { backgroundColor: colors.textMuted }]}>
+              <Ionicons name="person-outline" size={28} color="#FFFFFF" />
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.name}>Guest</Text>
+              <Text style={styles.email}>Sign in to sync your data</Text>
+            </View>
           </View>
-          <View style={styles.profileInfo}>
-            <Text style={styles.name}>{user?.displayName}</Text>
-            <Text style={styles.email}>{user?.email}</Text>
+        ) : (
+          <View style={styles.profile}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {user?.displayName?.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.name}>{user?.displayName}</Text>
+              <Text style={styles.email}>{user?.email}</Text>
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Playback */}
         <Text style={styles.sectionLabel}>Playback</Text>
@@ -220,15 +233,34 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Sign Out */}
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons
-            name="log-out-outline"
-            size={iconSizes.sm}
-            color={colors.error}
-          />
-          <Text style={styles.logoutText}>Sign Out</Text>
-        </TouchableOpacity>
+        {/* Sign Out / Sign In */}
+        {isGuest ? (
+          <TouchableOpacity
+            style={[styles.logoutButton, { backgroundColor: colors.primary }]}
+            onPress={() => {
+              usePlayerStore.getState().clearQueue();
+              logout();
+            }}
+          >
+            <Ionicons
+              name="log-in-outline"
+              size={iconSizes.sm}
+              color="#FFFFFF"
+            />
+            <Text style={[styles.logoutText, { color: '#FFFFFF' }]}>
+              Sign In
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Ionicons
+              name="log-out-outline"
+              size={iconSizes.sm}
+              color={colors.error}
+            />
+            <Text style={styles.logoutText}>Sign Out</Text>
+          </TouchableOpacity>
+        )}
 
         <View style={styles.bottomSpacer} />
       </ScrollView>

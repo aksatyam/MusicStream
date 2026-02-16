@@ -1,11 +1,14 @@
 import axios from 'axios';
+import { Platform } from 'react-native';
 import { useAuthStore } from '../stores/auth';
 
 // Production URL: Update this after deploying to Render
 // Format: https://musicstream-api.onrender.com/api
 const PRODUCTION_API_URL = 'https://musicstream-api.onrender.com/api';
 
-const API_BASE_URL = __DEV__ ? 'http://localhost:3000/api' : PRODUCTION_API_URL;
+// Android emulator uses 10.0.2.2 to reach host machine's localhost
+const DEV_HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+const API_BASE_URL = __DEV__ ? `http://${DEV_HOST}:3000/api` : PRODUCTION_API_URL;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -31,9 +34,12 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      const refreshToken = useAuthStore.getState().refreshToken;
+      // Guest users don't have tokens — just reject without forcing logout
+      const { refreshToken, isGuest } = useAuthStore.getState();
       if (!refreshToken) {
-        useAuthStore.getState().logout();
+        if (!isGuest) {
+          useAuthStore.getState().logout();
+        }
         return Promise.reject(error);
       }
 
@@ -45,7 +51,9 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(originalRequest);
       } catch {
-        useAuthStore.getState().logout();
+        if (!isGuest) {
+          useAuthStore.getState().logout();
+        }
         return Promise.reject(error);
       }
     }
