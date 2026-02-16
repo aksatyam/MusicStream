@@ -1,9 +1,11 @@
 import axios from 'axios';
 import { useAuthStore } from '../stores/auth';
 
-const API_BASE_URL = __DEV__
-  ? 'http://localhost:3000/api'
-  : 'https://api.musicstream.app/api';
+// Production URL: Update this after deploying to Render
+// Format: https://musicstream-api.onrender.com/api
+const PRODUCTION_API_URL = 'https://musicstream-api.onrender.com/api';
+
+const API_BASE_URL = __DEV__ ? 'http://localhost:3000/api' : PRODUCTION_API_URL;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

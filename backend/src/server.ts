@@ -10,6 +10,7 @@ import { authRoutes } from './routes/auth.js';
 import { searchRoutes } from './routes/search.js';
 import { trackRoutes } from './routes/tracks.js';
 import { playlistRoutes } from './routes/playlists.js';
+import { runMigrations } from './services/db.js';
 
 const app = Fastify({
   logger: {
@@ -41,6 +42,14 @@ async function start() {
   await app.register(searchRoutes, { prefix: '/api' });
   await app.register(trackRoutes, { prefix: '/api' });
   await app.register(playlistRoutes, { prefix: '/api' });
+
+  // Run database migrations
+  try {
+    await runMigrations();
+    app.log.info('Database migrations complete');
+  } catch (err) {
+    app.log.error(err, 'Migration failed — starting anyway');
+  }
 
   // Connect to Redis
   await cache.connect();

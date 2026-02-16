@@ -12,6 +12,7 @@ backend/            - Node.js + Fastify API server (TypeScript)
 mobile/             - React Native mobile app (iOS + Android)
 docker/             - Docker configs for services
 docker-compose.yml  - Local development environment
+render.yaml         - Render.com Blueprint (IaC for deployment)
 scripts/            - Dev automation scripts
 docs/               - Product docs and user guide
 ```
@@ -29,7 +30,15 @@ docs/               - Product docs and user guide
 - `cd mobile && npm test` — Run mobile tests (45 tests)
 - `cd infrastructure/environments/dev && terraform init` — Init Terraform
 
-### Production Deployment (VPS / Oracle Cloud Free Tier)
+### Production Deployment (Render.com — Recommended)
+- Push to GitHub → Render auto-deploys from `render.yaml` Blueprint
+- Free tier: Web Service + PostgreSQL (1GB) + Redis (25MB) + auto-HTTPS
+- `render.yaml` — Infrastructure as Code (services, DBs, env vars)
+- `backend/Dockerfile.render` — Render-optimized Docker build
+- Database migrations run automatically on startup via `runMigrations()`
+- See `docs/DEPLOYMENT.md` for full Render deployment guide
+
+### Production Deployment (VPS / Docker Compose — Alternative)
 - `./scripts/setup-oracle-vps.sh` — One-time server setup (Docker, firewall, swap)
 - `./scripts/init-ssl.sh` — Obtain Let's Encrypt SSL certificate (first time)
 - `./scripts/init-ssl.sh --self-signed` — Generate self-signed cert for testing
@@ -37,14 +46,14 @@ docs/               - Product docs and user guide
 - `./scripts/deploy.sh --down` — Stop all production services
 - `./scripts/deploy.sh --logs` — Tail production logs
 - `./scripts/deploy.sh --status` — Show service status
-- See `docs/DEPLOYMENT.md` for full Oracle Cloud deployment guide
+- See `docs/DEPLOYMENT.md` for VPS deployment guide
 
 ## Tech Stack
 
 - **Backend**: Node.js + Fastify + TypeScript
 - **Database**: PostgreSQL 16 + Redis 7
 - **Extractors**: Invidious (primary), Piped (secondary), yt-dlp (local fallback)
-- **Infrastructure**: Docker Compose (VPS) or Terraform + AWS (ECS Fargate, RDS, ElastiCache, ALB, S3)
+- **Infrastructure**: Render.com (recommended) or Docker Compose (VPS) or Terraform + AWS (ECS Fargate, RDS, ElastiCache, ALB, S3)
 - **Mobile**: React Native 0.84 + TypeScript
   - Navigation: React Navigation v7 (bottom tabs + native stacks)
   - State: Zustand + MMKV (persistent storage)

@@ -1,60 +1,175 @@
-# MusicStream — Deployment Guide (Oracle Cloud Free Tier)
+# MusicStream — Deployment Guide
 
-Deploy the MusicStream backend on Oracle Cloud's Always Free tier — 4 ARM CPUs, 24GB RAM, 200GB storage, completely free.
+Two deployment options are available:
 
-## Prerequisites
+| Option | Cost | Setup Time | Best For |
+|--------|------|-----------|----------|
+| **[Render.com](#option-1-rendercom-recommended)** | Free | 5 minutes | Quick, no server management |
+| **[VPS + Docker Compose](#option-2-vps--docker-compose)** | Free–$5/mo | 20 minutes | Full control, any VPS provider |
 
-- Oracle Cloud account ([sign up free](https://cloud.oracle.com/free))
-- A domain name pointing to your server IP (optional for testing)
+---
 
-## Step 1: Create the VM
+## Option 1: Render.com (Recommended)
 
-1. Log into Oracle Cloud Console
-2. Go to **Compute > Instances > Create Instance**
-3. Configure:
+Deploy with free managed PostgreSQL, Redis, and auto-HTTPS — no server to manage.
 
-| Setting | Value |
-|---------|-------|
-| **Name** | musicstream |
-| **Image** | Ubuntu 22.04 or 24.04 (Canonical) |
-| **Shape** | VM.Standard.A1.Flex (ARM) |
-| **OCPUs** | 2 (save 2 for future use) |
-| **RAM** | 12 GB (save 12 for future use) |
-| **Boot volume** | 100 GB |
-| **SSH key** | Upload your public key |
+### What You Get (Free Tier)
 
-4. Click **Create** and wait for the instance to be running
-5. Copy the **Public IP address**
+| Service | Specs | Limit |
+|---------|-------|-------|
+| Web Service | 512 MB RAM, Docker | 750 hrs/month |
+| PostgreSQL 16 | 1 GB storage | Never expires |
+| Redis | 25 MB (cache) | Never expires |
+| HTTPS/SSL | Automatic | Free |
+| Custom Domain | Supported | Free |
 
-## Step 2: Open Firewall Ports (OCI Console)
+> **Note:** Free web services sleep after 15 min of inactivity (10-30 sec cold start on next request).
 
-1. Go to **Networking > Virtual Cloud Networks**
-2. Click your VCN > **Security Lists** > **Default Security List**
-3. Click **Add Ingress Rules** and add:
+### Step 1: Push Code to GitHub
 
-| Source CIDR | Protocol | Dest Port | Description |
-|-------------|----------|-----------|-------------|
-| 0.0.0.0/0 | TCP | 80 | HTTP |
-| 0.0.0.0/0 | TCP | 443 | HTTPS |
-
-## Step 3: Server Setup
-
-SSH into the instance and run the setup script:
+Make sure your MusicStream repo is on GitHub with the latest code:
 
 ```bash
-ssh ubuntu@<your-public-ip>
+git add -A && git commit -m "Add Render deployment config" && git push
+```
+
+### Step 2: Create a Render Account
+
+1. Go to [render.com](https://render.com) and sign up with **GitHub**
+2. No credit card required
+
+### Step 3: Deploy via Blueprint
+
+1. Go to [Render Dashboard](https://dashboard.render.com)
+2. Click **New** → **Blueprint**
+3. Connect your **MusicStream** GitHub repository
+4. Render detects the `render.yaml` file automatically
+5. Review the services it will create:
+   - `musicstream-api` (Web Service)
+   - `musicstream-db` (PostgreSQL)
+   - `musicstream-redis` (Redis)
+6. Click **Apply** and wait for all 3 services to deploy (3-5 minutes)
+
+### Step 4: Run Database Migration
+
+Migrations run automatically on startup. Check the deploy logs:
+
+1. Go to **Dashboard** → **musicstream-api** → **Logs**
+2. You should see:
+   ```
+   Running migration: 001_initial_schema.sql
+   Migration complete: 001_initial_schema.sql
+   Database migrations complete
+   MusicStream API running on port 10000
+   ```
+
+### Step 5: Verify
+
+Your API is live at:
+
+```
+https://musicstream-api.onrender.com/api/health
+```
+
+You should see:
+
+```json
+{
+  "status": "ok",
+  "services": {
+    "database": "connected",
+    "redis": "connected"
+  }
+}
+```
+
+### Step 6: Update Mobile App
+
+Update the production API URL in `mobile/src/services/api.ts`:
+
+```typescript
+const PRODUCTION_API_URL = 'https://musicstream-api.onrender.com/api';
+```
+
+### Render Architecture
+
+```
+Internet (HTTPS)
+      │
+      ▼
+┌─────────────────────────────────────────────┐
+│  Render Platform (Managed)                  │
+│                                             │
+│  ┌──────────────────────────────────┐       │
+│  │  musicstream-api (Docker)        │       │
+│  │  Port 10000 + Auto HTTPS        │       │
+│  └──────────┬───────────┬──────────┘       │
+│             │           │                   │
+│       ┌─────▼─────┐  ┌─▼──────────┐       │
+│       │ PostgreSQL │  │   Redis    │       │
+│       │   1 GB     │  │   25 MB    │       │
+│       └───────────┘  └────────────┘       │
+└─────────────────────────────────────────────┘
+```
+
+### Updating on Render
+
+Just push to GitHub — Render auto-deploys:
+
+```bash
+git push origin main
+# Render detects the push and redeploys automatically
+```
+
+### Render Troubleshooting
+
+**Build fails:**
+- Check logs in Dashboard → musicstream-api → Events
+- Make sure `backend/Dockerfile.render` is present and `render.yaml` points to it
+
+**Database connection error:**
+- Render auto-injects `DATABASE_URL` — check Environment tab
+- Render Postgres requires SSL (already configured in `db.ts`)
+
+**Redis connection error:**
+- Check that the Redis service is running in Dashboard
+- The `REDIS_URL` is auto-injected from the Blueprint
+
+**Service sleeping / cold starts:**
+- Free tier sleeps after 15 min inactivity — this is normal
+- First request after sleep takes 10-30 seconds
+- Consider upgrading to Starter ($7/mo) to keep service awake
+
+**Custom domain:**
+- Dashboard → musicstream-api → Settings → Custom Domains
+- Add your domain and configure DNS as instructed
+
+---
+
+## Option 2: VPS + Docker Compose
+
+Deploy on any Linux VPS with Docker Compose (Oracle Cloud, DigitalOcean, Hetzner, etc.).
+
+### Prerequisites
+
+- A Linux VPS with 1+ GB RAM, 20+ GB disk
+- SSH access with root/sudo
+- Optional: a domain name
+
+### Step 1: Server Setup
+
+```bash
+ssh user@<your-server-ip>
 
 # Download and run the setup script
 curl -fsSL https://raw.githubusercontent.com/aksatyam/MusicStream/main/scripts/setup-oracle-vps.sh | bash
 
 # Log out and back in (for docker group)
 exit
-ssh ubuntu@<your-public-ip>
+ssh user@<your-server-ip>
 ```
 
-This installs Docker, Docker Compose, opens firewall ports, and adds swap.
-
-## Step 4: Clone and Configure
+### Step 2: Clone and Configure
 
 ```bash
 git clone https://github.com/aksatyam/MusicStream.git
@@ -63,69 +178,48 @@ cd MusicStream
 # First run — generates .env with secure passwords
 ./scripts/deploy.sh
 
-# Edit the environment file
+# Edit if needed
 vim .env
 ```
 
-Set these values in `.env`:
+### Step 3: SSL Certificate
 
-```
-DOMAIN=music.yourdomain.com    # Your domain (or server IP for testing)
-SSL_EMAIL=you@email.com        # For Let's Encrypt notifications
-```
-
-The script auto-generates secure passwords for Postgres, Redis, and JWT.
-
-## Step 5: SSL Certificate
-
-**With a domain (recommended):**
+**With a domain:**
 
 ```bash
-# Point your domain's A record to the server IP first, then:
 ./scripts/init-ssl.sh
 ```
 
-**Without a domain (testing):**
+**Without a domain (self-signed for testing):**
 
 ```bash
 ./scripts/init-ssl.sh --self-signed
 ```
 
-## Step 6: Deploy
+### Step 4: Deploy
 
 ```bash
 ./scripts/deploy.sh --build
 ```
 
-The first build takes 2-3 minutes. After that:
-
-```bash
-# Check everything is healthy
-./scripts/deploy.sh --status
-
-# Test the API
-curl https://music.yourdomain.com/api/health
-```
-
-## Management Commands
+### Management Commands
 
 ```bash
 ./scripts/deploy.sh --build     # Rebuild and deploy
 ./scripts/deploy.sh --down      # Stop all services
 ./scripts/deploy.sh --restart   # Restart services
 ./scripts/deploy.sh --logs      # Tail all logs
-./scripts/deploy.sh --logs api  # Tail API logs only
 ./scripts/deploy.sh --status    # Show service status
 ```
 
-## Architecture on Oracle Cloud
+### VPS Architecture
 
 ```
 Internet
    │
    ▼
 ┌──────────────────────────────────────────┐
-│  Oracle Cloud VM (ARM, 2 OCPU, 12GB)    │
+│  VPS (any Linux server)                  │
 │                                          │
 │  ┌─────────┐    ┌──────────────────┐     │
 │  │  Nginx   │───▶│  MusicStream API │     │
@@ -142,46 +236,3 @@ Internet
 │  Certbot (auto SSL renewal every 12h)    │
 └──────────────────────────────────────────┘
 ```
-
-## Updating
-
-To deploy a new version:
-
-```bash
-cd MusicStream
-git pull origin main
-./scripts/deploy.sh --build
-```
-
-## Resource Usage
-
-Expected resource usage on Oracle Cloud free tier:
-
-| Service | CPU | RAM | Storage |
-|---------|-----|-----|---------|
-| PostgreSQL | ~0.1 OCPU | ~200 MB | ~1 GB |
-| Redis | ~0.05 OCPU | ~50 MB | ~10 MB |
-| API + yt-dlp | ~0.3 OCPU | ~300 MB | ~500 MB |
-| Nginx | ~0.05 OCPU | ~20 MB | ~5 MB |
-| **Total** | **~0.5 OCPU** | **~570 MB** | **~1.5 GB** |
-
-This leaves plenty of headroom on a 2 OCPU / 12 GB instance.
-
-## Troubleshooting
-
-**"Out of capacity" when creating VM:**
-Oracle free tier VMs are subject to availability. Try a different availability domain or region.
-
-**Can't reach the server on port 80/443:**
-Check both layers:
-1. OCI Security List ingress rules (Console)
-2. Host iptables: `sudo iptables -L INPUT -n | grep -E "80|443"`
-
-**Docker permission denied:**
-Log out and back in after setup, or run: `newgrp docker`
-
-**SSL certificate fails:**
-Ensure your domain's A record points to the server IP and DNS has propagated: `dig +short music.yourdomain.com`
-
-**Instance reclaimed by Oracle:**
-Free tier instances with <20% CPU at the 95th percentile for 7 days may be reclaimed. The Certbot renewal timer and Redis persistence keep some baseline activity.
