@@ -18,6 +18,7 @@ docs/               - Product docs and user guide
 
 ## Key Commands
 
+### Development
 - `docker compose up -d` — Start local dev environment (Postgres, Redis, MinIO)
 - `./scripts/dev-start.sh` — Automated full local setup
 - `./scripts/format.sh` — Format all code and markdown files
@@ -28,12 +29,22 @@ docs/               - Product docs and user guide
 - `cd mobile && npm test` — Run mobile tests (45 tests)
 - `cd infrastructure/environments/dev && terraform init` — Init Terraform
 
+### Production Deployment (VPS / Oracle Cloud Free Tier)
+- `./scripts/setup-oracle-vps.sh` — One-time server setup (Docker, firewall, swap)
+- `./scripts/init-ssl.sh` — Obtain Let's Encrypt SSL certificate (first time)
+- `./scripts/init-ssl.sh --self-signed` — Generate self-signed cert for testing
+- `./scripts/deploy.sh --build` — Build images and deploy to production
+- `./scripts/deploy.sh --down` — Stop all production services
+- `./scripts/deploy.sh --logs` — Tail production logs
+- `./scripts/deploy.sh --status` — Show service status
+- See `docs/DEPLOYMENT.md` for full Oracle Cloud deployment guide
+
 ## Tech Stack
 
 - **Backend**: Node.js + Fastify + TypeScript
 - **Database**: PostgreSQL 16 + Redis 7
 - **Extractors**: Invidious (primary), Piped (secondary), yt-dlp (local fallback)
-- **Infrastructure**: Terraform + AWS (ECS Fargate, RDS, ElastiCache, ALB, S3)
+- **Infrastructure**: Docker Compose (VPS) or Terraform + AWS (ECS Fargate, RDS, ElastiCache, ALB, S3)
 - **Mobile**: React Native 0.84 + TypeScript
   - Navigation: React Navigation v7 (bottom tabs + native stacks)
   - State: Zustand + MMKV (persistent storage)

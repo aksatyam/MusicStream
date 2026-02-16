@@ -21,7 +21,8 @@ FROM node:22-alpine AS production
 
 WORKDIR /app
 
-RUN apk add --no-cache curl wget
+RUN apk add --no-cache curl wget python3 py3-pip \
+    && pip3 install --break-system-packages yt-dlp
 
 COPY package.json package-lock.json* ./
 RUN npm ci --production

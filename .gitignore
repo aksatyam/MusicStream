@@ -38,6 +38,9 @@ terraform.rc
 # Docker
 docker-compose.override.yml
 
+# SSL certificates
+docker/nginx/certs/
+
 # Logs
 *.log
 logs/
