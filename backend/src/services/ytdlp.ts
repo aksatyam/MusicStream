@@ -182,7 +182,6 @@ export async function ytdlpGetStreams(videoId: string): Promise<YtDlpStreamResul
         '--no-warnings',
         '--skip-download',
         '--no-check-certificates',
-        '--extractor-args', 'youtube:player_client=mweb',
         ...getCookieArgs(),
       ],
       { maxBuffer: 10 * 1024 * 1024, timeout: 60_000 },
