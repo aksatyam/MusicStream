@@ -258,8 +258,9 @@ class ExtractorOrchestrator {
       const metadata = await ytdlpGetStreams(videoId);
       await cache.set(cacheKey, metadata, CACHE_TTL.STREAM);
       return metadata;
-    } catch (_err) {
-      throw new Error('All extractors (including yt-dlp) failed for streams');
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : 'Unknown error';
+      throw new Error(`All extractors (including yt-dlp) failed for streams: ${detail}`);
     }
   }
 
