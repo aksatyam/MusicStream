@@ -178,7 +178,7 @@ export async function ytdlpGetStreams(videoId: string): Promise<YtDlpStreamResul
       'yt-dlp',
       [
         url,
-        '--dump-json',
+        '--dump-single-json',
         '--no-warnings',
         '--skip-download',
         '--no-check-certificates',
