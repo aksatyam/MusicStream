@@ -19,7 +19,7 @@ WORKDIR /app
 
 # Install yt-dlp (local fallback extractor) + curl for health checks
 # Place yt-dlp in /app/bin so the node user can self-update it at startup
-RUN apk add --no-cache curl python3 \
+RUN apk add --no-cache curl python3 ffmpeg \
     && mkdir -p /app/bin \
     && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /app/bin/yt-dlp \
     && chmod a+rx /app/bin/yt-dlp

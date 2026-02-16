@@ -93,11 +93,26 @@ export async function ytdlpSearch(query: string, limit: number = 20): Promise<Yt
 export async function ytdlpGetStreams(videoId: string): Promise<YtDlpStreamResult> {
   const url = `https://www.youtube.com/watch?v=${videoId}`;
 
-  const { stdout } = await execFileAsync(
-    'yt-dlp',
-    [url, '--dump-json', '--no-warnings', '--skip-download'],
-    { maxBuffer: 10 * 1024 * 1024, timeout: 30_000 },
-  );
+  let stdout: string;
+  try {
+    const result = await execFileAsync(
+      'yt-dlp',
+      [
+        url,
+        '--dump-json',
+        '--no-warnings',
+        '--skip-download',
+        '--no-check-certificates',
+        '--extractor-args', 'youtube:player_client=ios,web',
+      ],
+      { maxBuffer: 10 * 1024 * 1024, timeout: 60_000 },
+    );
+    stdout = result.stdout;
+  } catch (err: unknown) {
+    const execErr = err as { stderr?: string; message?: string };
+    const detail = execErr.stderr || execErr.message || 'Unknown yt-dlp error';
+    throw new Error(`yt-dlp stream extraction failed: ${detail}`);
+  }
 
   const data: YtDlpVideoJson = JSON.parse(stdout.trim());
 

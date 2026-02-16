@@ -14,8 +14,9 @@ export const trackRoutes: FastifyPluginAsync = async app => {
       const metadata = await extractorOrchestrator.getStreams(videoId);
       return reply.send(metadata);
     } catch (err) {
+      const message = err instanceof Error ? err.message : 'Stream resolution failed';
       app.log.error(err, `Stream resolution failed for ${videoId}`);
-      return reply.status(502).send({ error: 'Stream resolution failed' });
+      return reply.status(502).send({ error: 'Stream resolution failed', detail: message });
     }
   });
 
