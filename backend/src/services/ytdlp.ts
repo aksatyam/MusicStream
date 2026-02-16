@@ -44,14 +44,15 @@ export function initYtDlpCookies(): void {
   }
 }
 
-/** Return diagnostic info about cookies state */
-export function getCookieDiagnostics(): {
+/** Return diagnostic info about cookies state and yt-dlp version */
+export async function getCookieDiagnostics(): Promise<{
   envVarSet: boolean;
   envVarLength: number;
   fileExists: boolean;
   fileSize: number;
   firstLine: string;
-} {
+  ytdlpVersion: string;
+}> {
   const cookiesEnv = process.env.YOUTUBE_COOKIES;
   const fileExists = existsSync(COOKIES_PATH);
   let fileSize = 0;
@@ -64,13 +65,42 @@ export function getCookieDiagnostics(): {
       // ignore
     }
   }
+
+  let ytdlpVersion = 'unknown';
+  try {
+    const { stdout } = await execFileAsync('yt-dlp', ['--version'], { timeout: 5_000 });
+    ytdlpVersion = stdout.trim();
+  } catch {
+    // ignore
+  }
+
   return {
     envVarSet: !!cookiesEnv,
     envVarLength: cookiesEnv?.length || 0,
     fileExists,
     fileSize,
     firstLine,
+    ytdlpVersion,
   };
+}
+
+/**
+ * Debug helper: list available formats for a video.
+ * Used temporarily to debug "Requested format is not available" on Render.
+ */
+export async function ytdlpListFormats(videoId: string): Promise<string> {
+  const url = `https://www.youtube.com/watch?v=${videoId}`;
+  try {
+    const { stdout, stderr } = await execFileAsync(
+      'yt-dlp',
+      [url, '--list-formats', '--no-check-certificates', ...getCookieArgs()],
+      { maxBuffer: 10 * 1024 * 1024, timeout: 60_000 },
+    );
+    return stdout || stderr || 'No output';
+  } catch (err: unknown) {
+    const execErr = err as { stderr?: string; stdout?: string; message?: string };
+    return `Error: ${execErr.stderr || execErr.stdout || execErr.message || 'Unknown'}`;
+  }
 }
 
 /** Return --cookies args if cookies file exists */
