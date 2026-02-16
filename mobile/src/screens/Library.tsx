@@ -21,7 +21,7 @@ interface LibraryScreenProps {
 }
 
 export default function LibraryScreen({ navigation }: LibraryScreenProps) {
-  const { isAuthenticated, isGuest, logout } = useAuthStore();
+  const { isGuest, logout } = useAuthStore();
 
   const {
     playlists,
@@ -149,11 +149,7 @@ export default function LibraryScreen({ navigation }: LibraryScreenProps) {
           <Text style={styles.title}>Your Library</Text>
         </View>
         <View style={styles.guestContainer}>
-          <Ionicons
-            name="library-outline"
-            size={64}
-            color={colors.textMuted}
-          />
+          <Ionicons name="library-outline" size={64} color={colors.textMuted} />
           <Text style={styles.guestTitle}>Sign in to access your library</Text>
           <Text style={styles.guestSubtitle}>
             Create playlists, save favorites, and keep your listening history

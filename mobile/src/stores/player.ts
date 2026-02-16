@@ -161,7 +161,11 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setIsPlaying: playing => set({ isPlaying: playing }),
 
   clearQueue: async () => {
-    await TrackPlayer.reset();
+    try {
+      await TrackPlayer.reset();
+    } catch {
+      // Player may not be initialized
+    }
     set({ currentTrack: null, queue: [], isPlaying: false });
   },
 }));

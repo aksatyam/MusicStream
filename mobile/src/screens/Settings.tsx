@@ -96,7 +96,9 @@ export default function SettingsScreen() {
         {/* Profile */}
         {isGuest ? (
           <View style={styles.profile}>
-            <View style={[styles.avatar, { backgroundColor: colors.textMuted }]}>
+            <View
+              style={[styles.avatar, { backgroundColor: colors.textMuted }]}
+            >
               <Ionicons name="person-outline" size={28} color="#FFFFFF" />
             </View>
             <View style={styles.profileInfo}>
@@ -245,11 +247,9 @@ export default function SettingsScreen() {
             <Ionicons
               name="log-in-outline"
               size={iconSizes.sm}
-              color="#FFFFFF"
+              color={colors.text}
             />
-            <Text style={[styles.logoutText, { color: '#FFFFFF' }]}>
-              Sign In
-            </Text>
+            <Text style={styles.signInText}>Sign In</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -369,6 +369,10 @@ const styles = StyleSheet.create({
   logoutText: {
     ...typography.button,
     color: colors.error,
+  },
+  signInText: {
+    ...typography.button,
+    color: colors.text,
   },
   rowLast: {
     borderBottomWidth: 0,

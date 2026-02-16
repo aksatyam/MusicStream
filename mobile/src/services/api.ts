@@ -8,7 +8,9 @@ const PRODUCTION_API_URL = 'https://musicstream-api.onrender.com/api';
 
 // Android emulator uses 10.0.2.2 to reach host machine's localhost
 const DEV_HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
-const API_BASE_URL = __DEV__ ? `http://${DEV_HOST}:3000/api` : PRODUCTION_API_URL;
+const API_BASE_URL = __DEV__
+  ? `http://${DEV_HOST}:3000/api`
+  : PRODUCTION_API_URL;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

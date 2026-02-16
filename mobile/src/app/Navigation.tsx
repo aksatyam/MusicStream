@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -104,6 +104,13 @@ const TAB_ICONS: Record<string, { focused: string; unfocused: string }> = {
 function MainNavigator() {
   const [showNowPlaying, setShowNowPlaying] = useState(false);
   const currentTrack = usePlayerStore(s => s.currentTrack);
+
+  // Close NowPlaying modal when queue is cleared (currentTrack becomes null)
+  useEffect(() => {
+    if (!currentTrack && showNowPlaying) {
+      setShowNowPlaying(false);
+    }
+  }, [currentTrack, showNowPlaying]);
 
   return (
     <View style={styles.root}>
