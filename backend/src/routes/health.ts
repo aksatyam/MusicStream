@@ -14,30 +14,45 @@ function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T
 
 export const healthRoutes: FastifyPluginAsync = async app => {
   app.get('/health', async (_request, reply) => {
-    const defaultCookieDiag = {
-      envVarSet: false,
-      envVarLength: 0,
-      fileExists: false,
-      fileSize: 0,
-      firstLine: '',
-      ytdlpVersion: 'timeout',
-    };
-    const [redisHealthy, dbHealthy, cookieDiag] = await Promise.all([
-      withTimeout(cache.isHealthy(), 3000, false),
-      withTimeout(isDbHealthy(), 3000, false),
-      withTimeout(getCookieDiagnostics(), 5000, defaultCookieDiag),
-    ]);
-    return reply.send({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      version: process.env.npm_package_version || '0.1.0',
-      services: {
-        database: dbHealthy ? 'connected' : 'disconnected',
-        redis: redisHealthy ? 'connected' : 'disconnected',
-      },
-      extractors: extractorOrchestrator.getStatus(),
-      cookies: cookieDiag,
-    });
+    // Safety net: guarantee a response within 5 seconds no matter what
+    const safetyTimer = setTimeout(() => {
+      if (!reply.sent) {
+        reply.send({ status: 'ok', timestamp: new Date().toISOString(), note: 'safety-timeout' });
+      }
+    }, 5000);
+
+    try {
+      const defaultCookieDiag = {
+        envVarSet: false,
+        envVarLength: 0,
+        fileExists: false,
+        fileSize: 0,
+        firstLine: '',
+        ytdlpVersion: 'timeout',
+      };
+      const [redisHealthy, dbHealthy, cookieDiag] = await Promise.all([
+        withTimeout(cache.isHealthy(), 3000, false),
+        withTimeout(isDbHealthy(), 3000, false),
+        withTimeout(getCookieDiagnostics(), 5000, defaultCookieDiag),
+      ]);
+      clearTimeout(safetyTimer);
+      return reply.send({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        version: process.env.npm_package_version || '0.1.0',
+        services: {
+          database: dbHealthy ? 'connected' : 'disconnected',
+          redis: redisHealthy ? 'connected' : 'disconnected',
+        },
+        extractors: extractorOrchestrator.getStatus(),
+        cookies: cookieDiag,
+      });
+    } catch {
+      clearTimeout(safetyTimer);
+      if (!reply.sent) {
+        return reply.send({ status: 'ok', timestamp: new Date().toISOString(), note: 'error-fallback' });
+      }
+    }
   });
 
   // Debug endpoint: list available formats for a video

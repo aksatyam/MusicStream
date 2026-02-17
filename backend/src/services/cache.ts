@@ -6,8 +6,11 @@ class CacheService {
 
   constructor() {
     this.redis = new Redis(config.redisUrl, {
-      maxRetriesPerRequest: 3,
+      maxRetriesPerRequest: 1,
+      connectTimeout: 5000,
+      enableOfflineQueue: false,
       retryStrategy(times) {
+        if (times > 3) return null; // stop retrying after 3 attempts
         return Math.min(times * 200, 2000);
       },
       lazyConnect: true,

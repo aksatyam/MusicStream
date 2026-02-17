@@ -44,27 +44,41 @@ async function start() {
   await app.register(trackRoutes, { prefix: '/api' });
   await app.register(playlistRoutes, { prefix: '/api' });
 
-  // Run database migrations
-  try {
-    await runMigrations();
-    app.log.info('Database migrations complete');
-  } catch (err) {
-    app.log.error(err, 'Migration failed — starting anyway');
-  }
-
-  // Write YouTube cookies file from env var (if set)
-  initYtDlpCookies();
-
-  // Connect to Redis
-  await cache.connect();
-
-  // Start server
+  // Start listening FIRST so Render health checks can reach us immediately
   try {
     await app.listen({ port: config.port, host: '0.0.0.0' });
     app.log.info(`MusicStream API running on port ${config.port}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
+  }
+
+  // Write YouTube cookies file from env var (if set)
+  initYtDlpCookies();
+
+  // Run database migrations (with timeout — DB may be expired on free tier)
+  try {
+    await Promise.race([
+      runMigrations(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('migration timeout after 15s')), 15000),
+      ),
+    ]);
+    app.log.info('Database migrations complete');
+  } catch (err) {
+    app.log.error(err, 'Migration failed or timed out — continuing without migrations');
+  }
+
+  // Connect to Redis (with timeout — Redis may be suspended on free tier)
+  try {
+    await Promise.race([
+      cache.connect(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('redis connect timeout after 10s')), 10000),
+      ),
+    ]);
+  } catch {
+    app.log.warn('Redis connect failed or timed out — caching disabled');
   }
 }
 
