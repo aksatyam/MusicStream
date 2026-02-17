@@ -25,6 +25,9 @@ docs/               - Product docs and user guide
 - `./scripts/format.sh` — Format all code and markdown files
 - `cd backend && npm run dev` — Start API in dev mode (port 3000)
 - `cd backend && npm test` — Run backend tests (41 tests)
+- `./scripts/test-api.sh` — API regression tests against local server (30 tests)
+- `./scripts/test-api.sh https://musicstream-api.onrender.com` — Test against Render
+- `./scripts/test-api.sh --quick` — Fast mode (skip slow extractor endpoints)
 - `cd mobile && npm start` — Start Metro bundler (port 8081)
 - `cd mobile && npx react-native run-ios` — Build and run iOS app
 - `cd mobile && npm test` — Run mobile tests (45 tests)
@@ -78,4 +81,6 @@ docs/               - Product docs and user guide
 - All extractors return normalized response schema
 - Redis caching: 30min for streams, 6h for search, 1h for trending
 - Audio streams sorted MP4/AAC first for iOS compatibility
+- Server starts listening before DB/Redis init (Render health check compatibility)
+- ioredis uses `enableOfflineQueue: false` for fail-fast behavior
 - Security groups: ALB -> ECS only, ECS -> RDS/Redis only

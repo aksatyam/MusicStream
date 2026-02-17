@@ -442,14 +442,42 @@ Run with verbose output:
 npm test -- --verbose --coverage
 ```
 
+### API regression tests (30 tests)
+
+Test all 26 API endpoints against a running server:
+
+```bash
+# Against local dev server
+./scripts/test-api.sh
+
+# Against Render deployment
+./scripts/test-api.sh https://musicstream-api.onrender.com
+
+# Quick mode — skip slow extractor endpoints (~27s)
+./scripts/test-api.sh --quick
+
+# Skip only track stream resolution (~2min vs ~27s)
+./scripts/test-api.sh --skip-slow
+
+# Verbose — print full response bodies
+./scripts/test-api.sh -v
+```
+
+The script tests health checks, auth (register/login/refresh + negative cases), search, track streams, playlists CRUD, favorites CRUD, and listening history. It creates a unique test user per run and cleans up test data on exit.
+
+**Requirements:** `curl` and `jq` must be installed.
+
 ### Run both from the project root
 
 ```bash
-# Backend
+# Backend unit tests
 (cd backend && npm test)
 
-# Mobile
+# Mobile unit tests
 (cd mobile && npm test)
+
+# API regression tests (requires running server)
+./scripts/test-api.sh
 ```
 
 ### What's tested
@@ -462,6 +490,7 @@ npm test -- --verbose --coverage
 | **Backend** | Auth Route        | Zod validation for register, login, refresh                                 |
 | **Backend** | Search Route      | query validation, search results, 502 handling, suggestions, trending       |
 | **Backend** | Track Route       | stream metadata, 502, placeholder endpoints                                 |
+| **API**     | Regression Script | health, auth, search, tracks, playlists, favorites, history (30 live tests) |
 | **Mobile**  | Auth Store        | setAuth, setTokens, logout, hydrate from MMKV                               |
 | **Mobile**  | Player Store      | playTrack, addToQueue, skip, togglePlayPause, clearQueue                    |
 | **Mobile**  | Library Store     | playlists CRUD, optimistic favorites, isFavorite, history                   |
@@ -527,6 +556,7 @@ All endpoints are prefixed with `/api`.
 | ------ | ------------------------------- | ------------------------------------ |
 | `GET`  | `/health`                       | Health check (DB, Redis, extractors) |
 | `GET`  | `/admin/extractors`             | Extractor circuit breaker status     |
+| `GET`  | `/admin/debug-formats/:videoId` | List available formats (yt-dlp)      |
 | `POST` | `/auth/register`                | Create new account                   |
 | `POST` | `/auth/login`                   | Login with email/password            |
 | `POST` | `/auth/refresh`                 | Rotate JWT tokens                    |
@@ -534,6 +564,9 @@ All endpoints are prefixed with `/api`.
 | `GET`  | `/search/suggestions?q=<query>` | Search autocomplete                  |
 | `GET`  | `/trending`                     | Trending tracks                      |
 | `GET`  | `/tracks/:videoId`              | Get track metadata + audio streams   |
+| `GET`  | `/tracks/:videoId/related`      | Related tracks (stub)                |
+| `GET`  | `/channels/:channelId`          | Channel info (stub)                  |
+| `GET`  | `/lyrics/:trackId`              | Synced lyrics (stub)                 |
 
 ### Authenticated endpoints (require `Authorization: Bearer <token>`)
 
@@ -658,6 +691,7 @@ MusicStream/
 ├── docker/                     # Docker configs for services
 ├── docker-compose.yml          # Local development stack
 ├── scripts/dev-start.sh        # Automated local dev setup
+├── scripts/test-api.sh         # API regression tests (30 endpoint tests)
 ├── .github/workflows/ci.yml    # GitHub Actions CI pipeline
 └── CLAUDE.md                   # Project conventions
 ```

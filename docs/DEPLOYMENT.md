@@ -83,6 +83,18 @@ You should see:
 }
 ```
 
+**Run the full API regression test suite:**
+
+```bash
+# Quick verification (~27s) — tests health, auth, playlists, favorites, history
+./scripts/test-api.sh --quick https://musicstream-api.onrender.com
+
+# Full verification (~2min) — includes search and stream resolution
+./scripts/test-api.sh https://musicstream-api.onrender.com
+```
+
+All 30 tests should pass (search may return 502 if extractors are down — this is a known issue on datacenter IPs).
+
 ### Step 6: Update Mobile App
 
 Update the production API URL in `mobile/src/services/api.ts`:
@@ -200,6 +212,16 @@ vim .env
 
 ```bash
 ./scripts/deploy.sh --build
+```
+
+### Step 5: Verify
+
+```bash
+# Quick regression test
+./scripts/test-api.sh --quick https://<your-domain>
+
+# Or with IP (HTTP)
+./scripts/test-api.sh --quick http://<your-server-ip>:3000
 ```
 
 ### Management Commands
