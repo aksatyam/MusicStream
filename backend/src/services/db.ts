@@ -36,7 +36,10 @@ export async function getOne<T extends pg.QueryResultRow = Record<string, unknow
 
 export async function isHealthy(): Promise<boolean> {
   try {
-    await pool.query('SELECT 1');
+    await Promise.race([
+      pool.query('SELECT 1'),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('db health timeout')), 3_000)),
+    ]);
     return true;
   } catch {
     return false;

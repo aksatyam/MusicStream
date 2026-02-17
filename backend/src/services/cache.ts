@@ -54,7 +54,10 @@ class CacheService {
 
   async isHealthy(): Promise<boolean> {
     try {
-      const result = await this.redis.ping();
+      const result = await Promise.race([
+        this.redis.ping(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('redis ping timeout')), 3_000)),
+      ]);
       return result === 'PONG';
     } catch {
       return false;
