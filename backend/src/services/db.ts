@@ -9,8 +9,8 @@ const maxConnections = config.nodeEnv === 'production' ? 5 : 20;
 const pool = new pg.Pool({
   connectionString: config.databaseUrl,
   max: maxConnections,
-  idleTimeoutMillis: 30_000,
-  connectionTimeoutMillis: 10_000,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
   // Render Postgres requires SSL in production
   ssl: config.nodeEnv === 'production' ? { rejectUnauthorized: false } : false,
 });
@@ -38,7 +38,7 @@ export async function isHealthy(): Promise<boolean> {
   try {
     await Promise.race([
       pool.query('SELECT 1'),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('db health timeout')), 3_000)),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('db health timeout')), 3000)),
     ]);
     return true;
   } catch {

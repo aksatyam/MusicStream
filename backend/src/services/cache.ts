@@ -56,7 +56,7 @@ class CacheService {
     try {
       const result = await Promise.race([
         this.redis.ping(),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('redis ping timeout')), 3_000)),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('redis ping timeout')), 3000)),
       ]);
       return result === 'PONG';
     } catch {

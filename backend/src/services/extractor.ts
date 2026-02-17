@@ -98,7 +98,7 @@ interface Extractor {
 }
 
 const CIRCUIT_BREAKER_THRESHOLD = 5;
-const CIRCUIT_BREAKER_RESET_MS = 60_000; // 1 minute
+const CIRCUIT_BREAKER_RESET_MS = 60000; // 1 minute
 
 class ExtractorOrchestrator {
   private extractors: Extractor[];
@@ -107,14 +107,14 @@ class ExtractorOrchestrator {
     this.extractors = [
       {
         name: 'invidious',
-        client: axios.create({ baseURL: config.invidiousUrl, timeout: 10_000 }),
+        client: axios.create({ baseURL: config.invidiousUrl, timeout: 10000 }),
         isOpen: false,
         failureCount: 0,
         lastFailure: 0,
       },
       {
         name: 'piped',
-        client: axios.create({ baseURL: config.pipedUrl, timeout: 10_000 }),
+        client: axios.create({ baseURL: config.pipedUrl, timeout: 10000 }),
         isOpen: false,
         failureCount: 0,
         lastFailure: 0,

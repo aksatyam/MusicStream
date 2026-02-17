@@ -68,7 +68,7 @@ export async function getCookieDiagnostics(): Promise<{
 
   let ytdlpVersion = 'unknown';
   try {
-    const { stdout } = await execFileAsync('yt-dlp', ['--version'], { timeout: 5_000 });
+    const { stdout } = await execFileAsync('yt-dlp', ['--version'], { timeout: 5000 });
     ytdlpVersion = stdout.trim();
   } catch {
     // ignore
@@ -94,7 +94,7 @@ export async function ytdlpListFormats(videoId: string): Promise<string> {
     const { stdout, stderr } = await execFileAsync(
       'yt-dlp',
       [url, '--list-formats', '--no-check-certificates', ...getCookieArgs()],
-      { maxBuffer: 10 * 1024 * 1024, timeout: 60_000 },
+      { maxBuffer: 10 * 1024 * 1024, timeout: 60000 },
     );
     return stdout || stderr || 'No output';
   } catch (err: unknown) {
@@ -169,7 +169,7 @@ export async function ytdlpSearch(query: string, limit: number = 20): Promise<Yt
       '--skip-download',
       ...getCookieArgs(),
     ],
-    { maxBuffer: 10 * 1024 * 1024, timeout: 30_000 },
+    { maxBuffer: 10 * 1024 * 1024, timeout: 30000 },
   );
 
   // yt-dlp outputs one JSON object per line
@@ -214,7 +214,7 @@ export async function ytdlpGetStreams(videoId: string): Promise<YtDlpStreamResul
         '--no-check-certificates',
         ...getCookieArgs(),
       ],
-      { maxBuffer: 10 * 1024 * 1024, timeout: 60_000 },
+      { maxBuffer: 10 * 1024 * 1024, timeout: 60000 },
     );
     stdout = result.stdout;
   } catch (err: unknown) {
@@ -276,7 +276,7 @@ export async function ytdlpGetTrending(limit: number = 20): Promise<YtDlpSearchR
       String(limit),
       ...getCookieArgs(),
     ],
-    { maxBuffer: 10 * 1024 * 1024, timeout: 30_000 },
+    { maxBuffer: 10 * 1024 * 1024, timeout: 30000 },
   );
 
   const results: YtDlpSearchResult[] = [];
